@@ -1,0 +1,15 @@
+[package]
+name = "lps22hb"
+version = "0.0.1"
+authors = ["Michal Lasak <nebelgrau77@gmail.com>"]
+edition = "2018"
+categories = ["embedded", "hardware-support", "no-std"]
+description = "A platform agnostic driver to interface with LPS22HB pressure sensor module."
+documentation = ""
+readme = "README.md"
+keywords = ["embedded-hal-driver", "pressure", "sensor", "MEMS"]
+license = "MIT"
+repository = "https://github.com/lonesometraveler/lsm9ds1"
+
+[dependencies]
+embedded-hal  = { version = "0.2" }
