@@ -12,7 +12,11 @@ Inspired by and partially based on [another STMicroelectronics MEMS driver](http
 This driver allows you to:
 - read pressure and temperature
 - check if sensor is reachable
-  
+
+## WORK IN PROGRESS:
+
+This library is work in progress. Not all features are implemented yet. Contributions are welcome.
+
 ### TO DO:
 - [ ] output data rate setting
 - [ ] interrupts configuration
