@@ -13,8 +13,7 @@
 //! Only single shot mode is supported. 
 //! 
 //! 
-//! ### Datasheets
-//! - [LPS22HB](https://www.st.com/resource/en/datasheet/lps22hb.pdf)
+//! ### Datasheet: [LPS22HB](https://www.st.com/resource/en/datasheet/lps22hb.pdf)
 //! 
 //! ## Usage examples (see also examples folder)
 //! 

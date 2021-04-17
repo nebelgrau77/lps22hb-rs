@@ -5,9 +5,9 @@ authors = ["Michal Lasak <nebelgrau77@gmail.com>"]
 edition = "2018"
 categories = ["embedded", "hardware-support", "no-std"]
 description = "A platform agnostic driver to interface with LPS22HB pressure sensor module."
-documentation = ""
+documentation = "https://docs.rs/lps22hb"
 readme = "README.md"
-keywords = ["embedded-hal-driver", "pressure", "sensor", "MEMS"]
+keywords = ["embedded-hal-driver", "pressure", "sensor", "MEMS", "lps22"]
 license = "MIT"
 repository = "https://github.com/nebelgrau77/lps22hb-rs"
 
