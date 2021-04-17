@@ -1,1 +1,0 @@
-{"rustc":4637997617383607407,"features":"[\"default\", \"rt\"]","target":10429514197457385088,"profile":835532629594041745,"path":3002558837472010202,"deps":[],"local":[{"CheckDepInfo":{"dep_info":"release/.fingerprint/nrf52840-hal-bc445c4b14b90cba/dep-build-script-build-script-build"}}],"rustflags":[],"metadata":16464484815914091001,"config":0,"compile_kind":0}

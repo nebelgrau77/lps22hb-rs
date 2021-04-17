@@ -1,3 +1,0 @@
-cargo:rustc-link-search=/media/nebelgrau/BARRA1/rust/EMBEDDED/drivers/lps22hb-rs/examples/arduino_BLEsense/target/thumbv7em-none-eabihf/release/build/nrf52840-pac-043bc30c275a62ae/out
-cargo:rerun-if-changed=device.x
-cargo:rerun-if-changed=build.rs

@@ -1,2 +1,0 @@
-cargo:rustc-env=TYPENUM_BUILD_CONSTS=/media/nebelgrau/BARRA1/rust/EMBEDDED/drivers/lps22hb-rs/examples/arduino_BLEsense/target/thumbv7em-none-eabihf/release/build/typenum-2d82fa4fb0527623/out/consts.rs
-cargo:rustc-env=TYPENUM_BUILD_OP=/media/nebelgrau/BARRA1/rust/EMBEDDED/drivers/lps22hb-rs/examples/arduino_BLEsense/target/thumbv7em-none-eabihf/release/build/typenum-2d82fa4fb0527623/out/op.rs
