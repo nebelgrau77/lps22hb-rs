@@ -1,6 +1,7 @@
 //! Interface trait
-pub mod spi;
-pub use self::spi::SpiInterface;
+// for now it's limited to I2C 
+//pub mod spi;
+//pub use self::spi::SpiInterface;
 pub mod i2c;
 pub use self::i2c::I2cInterface;
 
@@ -8,22 +9,16 @@ pub use self::i2c::I2cInterface;
 pub trait Interface {
     type Error;
 
+    // removed "sensor" argument as there's only one
+
     /// Writes a byte to a sensor's specified register address.
-    /// # Arguments
-    /// * `sensor` - `Sensor` to talk to
+    /// # Arguments    
     /// * `addr` - register address
     /// * `value` - value to write
-    fn write(&mut self, sensor: Sensor, addr: u8, value: u8) -> Result<(), Self::Error>;
+    fn write(&mut self, addr: u8, value: u8) -> Result<(), Self::Error>;
     /// Reads multiple bytes from a sensor's specified register address.
-    /// # Arguments
-    /// * `sensor` - `Sensor` to talk to
+    /// # Arguments    
     /// * `addr` - register address
     /// * `buffer` - buffer to store read data
-    fn read(&mut self, sensor: Sensor, addr: u8, buffer: &mut [u8]) -> Result<(), Self::Error>;
-}
-
-/// Available Sensors to talk to
-pub enum Sensor {
-    Pressure,
-    Temperature,
+    fn read(&mut self, addr: u8, buffer: &mut [u8]) -> Result<(), Self::Error>;
 }

@@ -1,0 +1,6 @@
+cargo:rustc-link-lib=static=cortex-m
+cargo:rustc-link-search=/media/nebelgrau/BARRA1/rust/EMBEDDED/drivers/lps22hb-rs/examples/arduino_BLEsense/target/thumbv7em-none-eabihf/release/build/cortex-m-3f8bf2d0c04a0539/out
+cargo:rustc-cfg=cortex_m
+cargo:rustc-cfg=armv7m
+cargo:rustc-cfg=armv7em
+cargo:rustc-cfg=has_fpu

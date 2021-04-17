@@ -1,8 +1,6 @@
 //! I2C Interface
 use super::Interface;
-use super::Sensor;
 use embedded_hal::blocking::i2c::{Write, WriteRead};
-use Sensor::*;
 /// Errors in this crate
 #[derive(Debug)]
 pub enum Error<CommE> {
@@ -11,6 +9,7 @@ pub enum Error<CommE> {
 }
 
 /// Pressure sensor address for I2C communication
+#[allow(non_camel_case_types)]
 pub enum I2cAddress {    
     /// SA0 pad tied to VCC
     SA0_VCC =   0b1011101,
@@ -24,8 +23,7 @@ impl I2cAddress {
     }
 }
 
-
-/// This holds `I2C` and AG and Mag addresses
+/// This holds `I2C` and device address
 pub struct I2cInterface<I2C> {
     i2c: I2C,
     dev_addr: u8,    
@@ -51,10 +49,8 @@ where
 {
     type Error = Error<CommE>;
 
-    fn write(&mut self, sensor: Sensor, addr: u8, value: u8) -> Result<(), Self::Error> {
-        let sensor_addr = match sensor {
-            Pressure | Temperature => self.dev_addr,            
-        };
+    fn write(&mut self, addr: u8, value: u8) -> Result<(), Self::Error> {
+        let sensor_addr = self.dev_addr;        
         core::prelude::v1::Ok(
             self.i2c
                 .write(sensor_addr, &[addr, value])
@@ -62,10 +58,8 @@ where
         )
     }
 
-    fn read(&mut self, sensor: Sensor, addr: u8, buffer: &mut [u8]) -> Result<(), Self::Error> {
-        let sensor_addr = match sensor {
-            Pressure | Temperature => self.dev_addr,            
-        };
+    fn read(&mut self, addr: u8, buffer: &mut [u8]) -> Result<(), Self::Error> {
+        let sensor_addr = self.dev_addr;        
         core::prelude::v1::Ok(
             self.i2c
                 .write_read(sensor_addr, &[addr], buffer)

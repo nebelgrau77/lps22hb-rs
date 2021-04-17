@@ -3,7 +3,7 @@
 /// LPS22HB Registers
 #[allow(non_camel_case_types)]
 #[derive(Clone, Copy)]
-pub enum LPS {
+pub enum Registers {
     
     /// Interrupt control.
     INTERRUPT_CFG   = 0x0B,
@@ -54,8 +54,23 @@ pub enum LPS {
     
 }
 
-impl LPS {
+impl Registers {
     pub fn addr(self) -> u8 {
+        self as u8
+    }
+}
+
+/// LPS22HB Bit masks
+#[allow(non_camel_case_types)]
+#[derive(Clone, Copy)]
+pub enum Bitmasks {
+    
+    /// Enable single shot to acquire a new dataset
+    ONE_SHOT    = 0b0000_0001,
+}
+
+impl Bitmasks {
+    pub fn bitmask(self) -> u8 {
         self as u8
     }
 }

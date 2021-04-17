@@ -1,0 +1,1 @@
+{"rustc":4637997617383607407,"features":"","target":0,"profile":0,"path":0,"deps":[[17746955012616724977,"build_script_build",false,7370505760578625538]],"local":[{"RerunIfChanged":{"output":"thumbv7em-none-eabihf/release/build/nrf52840-pac-043bc30c275a62ae/output","paths":["device.x","build.rs"]}}],"rustflags":[],"metadata":0,"config":0,"compile_kind":0}

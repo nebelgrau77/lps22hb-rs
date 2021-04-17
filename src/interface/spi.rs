@@ -1,8 +1,6 @@
 //! SPI Interface
 use super::Interface;
-use super::Sensor;
 use embedded_hal::{blocking::spi::Transfer, blocking::spi::Write, digital::v2::OutputPin};
-use Sensor::*;
 
 /// R/W bit should be high for SPI Read operation
 const SPI_READ: u8 = 0x80;

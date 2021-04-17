@@ -7,19 +7,26 @@ based on the [`embedded-hal`] traits.
 
 [`embedded-hal`]: https://github.com/rust-embedded/embedded-hal
 
+Inspired by and partially based on [another STMicroelectronics MEMS driver](https://github.com/lonesometraveler/lsm9ds1).
 
 This driver allows you to:
-- 
+- read pressure and temperature
+- check if sensor is reachable
   
 ### TO DO:
-- [ ] some feature
+- [ ] output data rate setting
+- [ ] interrupts configuration
+- [ ] FIFO configuration
+- [ ] reading reference pressure
+- [ ] calibration
+- [ ] reading data ready status
+- [ ] reading data overrun status
 
 [Some blog post](https://nebelgrau77.github.io/posts/rust_driver/)
 
 ## The device
 
-The LPS22HB is...
-
+The LPS22HB is an ultra-compact piezoresistive absolute pressure sensor which functions as a digital output barometer. The device comprises a sensing element and an IC interface which communicates through I2C or SPI from the sensing element to the application.
 
 Datasheet: [LPS22HB](https://www.st.com/resource/en/datasheet/dm00140895.pdf)
 
@@ -31,8 +38,6 @@ then instantiate the device.
 Please find additional examples using hardware in this repository: [examples]
 
 [examples]: https://github.com/nebelgrau77/lps22hb-rs/tree/main/examples
-
-
 
 ## Support
 

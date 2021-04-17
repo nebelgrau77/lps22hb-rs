@@ -1,0 +1,1 @@
+{"rustc":4637997617383607407,"features":"[\"52840\", \"nrf52840-pac\"]","target":10429514197457385088,"profile":835532629594041745,"path":3683913746385690425,"deps":[],"local":[{"CheckDepInfo":{"dep_info":"release/.fingerprint/nrf-hal-common-3c9954dfffd75953/dep-build-script-build-script-build"}}],"rustflags":[],"metadata":1108973764175761009,"config":0,"compile_kind":0}

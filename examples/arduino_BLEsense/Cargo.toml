@@ -1,0 +1,25 @@
+[package]
+name = "LPS22_test"
+version = "0.1.0"
+authors = ["nebelgrau77"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+cortex-m = "0.6.2"
+cortex-m-rt = "0.6.12"
+
+panic-halt = "~0.2"
+
+nrf52840-hal = {git = "https://github.com/nrf-rs/nrf-hal", branch = "master", features = ["rt"]}
+
+arrayvec = {version = "0.5.1", default-features = false}
+
+nb = "1"
+
+lps22hb = {path = "../..", version = "*"}
+
+[dependencies.embedded-hal]
+version = "0.2.3"
+features = ["unproven"]
