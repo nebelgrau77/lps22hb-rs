@@ -9,7 +9,7 @@ documentation = ""
 readme = "README.md"
 keywords = ["embedded-hal-driver", "pressure", "sensor", "MEMS"]
 license = "MIT"
-repository = "https://github.com/lonesometraveler/lsm9ds1"
+repository = "https://github.com/nebelgrau77/lps22hb-rs"
 
 [dependencies]
 embedded-hal  = { version = "0.2" }
