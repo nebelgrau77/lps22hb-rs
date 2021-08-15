@@ -17,11 +17,6 @@ where
         Ok(())
     }
 
-
-    
-
-    // CHECK THE REGISTER AND MASK!!!
-
     /// Set output data rate        
     pub fn set_datarate(&mut self, odr: ODR) -> Result<(), T::Error> {
         let mut reg_data = [0u8];

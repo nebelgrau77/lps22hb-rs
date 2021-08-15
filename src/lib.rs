@@ -3,15 +3,16 @@
 //! This driver allows you to:
 //! - read atmospheric pressure in hPa, see [`read_pressure()`]
 //! - read temperature in degrees Celsius, see [`read_temperature()`]
-//! - enable single-shot data acquisition, see ['enable_one_shot()`]
+//! - enable single-shot data acquisition, see [`enable_one_shot()`]
+//! - set data rate, see [`set_datarate()`]
 //! 
 //! [`read_pressure()`]: struct.LPS22HB.html#method.read_pressure
 //! [`read_temperature()`]: struct.LPS22HB.html#method.read_temperature
-//! ['enable_one_shot()`]: struct.LPS22HB.html#method.enable_one_shot
+//! [`enable_one_shot()`]: struct.LPS22HB.html#method.enable_one_shot
+//! [`set_datarate()`]: struct.LPS22HB.html#method.set_datarate
 //! 
 //! __NOTE__: This is a very early version of the crate. Only I2C interface is supported at the moment.
-//! Only single shot mode is supported. 
-//! 
+//!  
 //! 
 //! ### Datasheet: [LPS22HB](https://www.st.com/resource/en/datasheet/lps22hb.pdf)
 //! 
