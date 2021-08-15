@@ -32,7 +32,7 @@ pub struct I2cInterface<I2C> {
 impl<I2C> I2cInterface<I2C> {
     /// Initializes an Interface with `I2C` instance and device address
     /// # Arguments
-    /// * `i2C` - I2C instance
+    /// * `i2c` - I2C instance
     /// * `dev_addr` - `I2cAddress`: register address for the pressure sensor
     pub fn init(i2c: I2C, dev_addr: I2cAddress) -> Self {
         Self {

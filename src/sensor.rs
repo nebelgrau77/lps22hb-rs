@@ -1,5 +1,48 @@
-//! Pressure sensor settings, types
-#![allow(dead_code, non_camel_case_types)]
+//! Various sensor functions 
+
+use super::*; 
+
+impl<T, E> LPS22HB<T> 
+where
+    T: Interface<Error = E>,
+{   
+
+
+    /// Read the device ID ("who am I")
+    pub fn get_device_id(&mut self) -> Result<u8, T::Error> {        
+        let mut data = [0u8;1];
+        self.interface.read(Registers::WHO_AM_I.addr(), &mut data)?;
+        let whoami = data[0];
+        Ok(whoami)
+    }
+
+    /// Raw sensor reading (3 bytes of pressure data and 2 bytes of temperature data)
+    fn read_sensor_raw(&mut self) -> Result<(i32, i32), T::Error> {
+        let mut data = [0u8;5];
+        self.interface.read(Registers::PRESS_OUT_XL.addr(), &mut data)?;
+        let p: i32 = (data[2] as i32) << 16 | (data[1] as i32) << 8 | (data[0] as i32);
+        let t: i32 = (data[4] as i32) << 8 | (data[3] as i32);
+        Ok((p, t))
+    }
+
+    /// Calculated pressure reading in hPa
+    pub fn read_pressure(&mut self) -> Result<f32, T::Error> {
+        let (p,_t) = self.read_sensor_raw()?;
+        let pressure: f32 = (p as f32) / PRESS_SCALE;
+        Ok(pressure)
+    }
+
+    /// Calculated temperaure reading in degrees Celsius 
+    pub fn read_temperature(&mut self) -> Result<f32, T::Error> {
+        let (_p,t) = self.read_sensor_raw()?;
+        let temperature: f32 = (t as f32) / TEMP_SCALE;
+        Ok(temperature)
+    }
+
+
+}
+
+/*
 
 /// Pressure sensor settings. Use this struct to configure the sensor.
 #[derive(Debug)]
@@ -52,31 +95,11 @@ impl SensorSettings {
     }
 }
 
-/// Output data rate and power mode selection (ODR_XL). (Refer to Table 68)
-#[derive(Debug, Clone, Copy)]
-pub enum ODR {
-    /// Power-down / One-shot mode enabled
-    PowerDown = 0b000,
-    /// 1 Hz
-    _1Hz = 0b001,
-    /// 10 Hz
-    _10Hz = 0b010,
-    /// 25 Hz
-    _25Hz = 0b011,
-    /// 50 Hz
-    _50Hz = 0b100,
-    /// 75 Hz
-    _75Hz = 0b101,    
-}
-
-impl ODR {
-    pub fn value(self) -> u8 {
-        (self as u8) << 4
-    }
-}
+ */
 
 
 
+/*
 #[test]
 fn sensor_init_values() {
     let settings = SensorSettings::default();
@@ -84,3 +107,4 @@ fn sensor_init_values() {
     //assert_eq!(settings.ctrl_reg6_xl(), 0b0110_0000); // [ODR_XL2][ODR_XL1][ODR_XL0][FS1_XL][FS0_XL][BW_SCAL_ODR][BW_XL1][BW_XL0]
     //assert_eq!(settings.ctrl_reg7_xl(), 0b0000_0000); // [HR][DCF1][DCF0][0][0][FDS][0][HPIS1]
 }
+ */

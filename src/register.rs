@@ -1,4 +1,7 @@
 //! Register mapping
+//! 
+//! TO DO:
+//! - add other bitmasks
 
 /// LPS22HB Registers
 #[allow(non_camel_case_types)]
@@ -62,15 +65,17 @@ impl Registers {
 
 /// LPS22HB Bit masks
 #[allow(non_camel_case_types)]
-#[derive(Clone, Copy)]
-pub enum Bitmasks {
-    
-    /// Enable single shot to acquire a new dataset
-    ONE_SHOT    = 0b0000_0001,
-}
+pub struct Bitmasks;
 
 impl Bitmasks {
-    pub fn bitmask(self) -> u8 {
-        self as u8
-    }
+
+    /// Enable single shot to acquire a new dataset
+    pub const ONE_SHOT: u8 = 0b0000_0001;
+
+    /// Output data rate selection
+    pub const ODR_MASK: u8 = 0b0111_0000;
+
+    
+    
+
 }

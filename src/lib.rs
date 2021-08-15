@@ -26,13 +26,10 @@
 //! ```rust
 //! 
 //! use lps22hb::interface::{I2cInterface, i2c::I2cAddress};
-//! use lps22hb::{sensor, LPS22HBInit};
+//! use lps22hb::*;
 //! 
-//! let mut lps22 = LPS22HBInit {
-//!         ..Default::default()
-//!         }.with_interface(i2c_interface);
+//! let mut lps22 = LPS22HB.new(i2c_interface);
 //! 
-//! lps22.begin_sensor().unwrap();
 //! 
 //! lps22.enable_one_shot().unwrap();
 //! 
@@ -41,11 +38,20 @@
 //! ```
 //!
 
+// TO DO:
+// - add other enums (FIFO settings, interrupts, etc.)
+
 #![no_std]
 //#![deny(warnings, missing_docs)]
 
 pub mod sensor;
-use sensor::SensorSettings;
+use sensor::*;
+
+pub mod config;
+use config::*;
+
+pub mod fifo;
+use fifo::*;
 
 pub mod register;
 use register::{Registers, Bitmasks};
@@ -61,49 +67,30 @@ const TEMP_SCALE: f32 = 100.0;
 /// The output of the pressure sensor must be divided by 4096, see p. 10 of the datasheet.
 const PRESS_SCALE: f32 = 4096.0;
 
-/// LPS22HB init struct.
-/// Use this struct to configure sensors and init LPS22HB with an interface of your choice.
-pub struct LPS22HBInit {
-    pub sensor: SensorSettings,    
-}
 
-impl Default for LPS22HBInit {
-    fn default() -> Self {
-        Self {
-            sensor: SensorSettings::default(),            
-        }
-    }
-}
 
-impl LPS22HBInit {
-    /// Constructs a new LPS22HB driver instance with a I2C or SPI peripheral.
-    ///
-    /// # Arguments
-    /// * `interface` - `SpiInterface` or `I2cInterface`
-    pub fn with_interface<T>(self, interface: T) -> LPS22HB<T>
-    where
-        T: Interface,
-    {
-        LPS22HB {
-            interface,
-            sensor: self.sensor,            
-        }
-    }
-}
-
-/// LPS22HB sensor
-pub struct LPS22HB<T>
-where
-    T: Interface,
-{
+/// Holds the driver instance with the selected interface
+pub struct LPS22HB<T> {
     interface: T,
-    sensor: SensorSettings,    
 }
 
-impl<T> LPS22HB<T>
+impl<T, E> LPS22HB<T> 
 where
-    T: Interface,
+    T: Interface<Error = E>,
 {   
+    
+    /// Create a new instance of the LPS25HB driver.
+    pub fn new(interface: T) -> Self {
+        LPS22HB {interface}
+    }
+
+    /// Destroy driver instance, return interface instance.
+    pub fn destroy(self) -> T {
+        self.interface
+    }
+
+
+    /*
     /// Verifies communication with WHO_AM_I register    
     pub fn sensor_is_reachable(&mut self) -> Result<bool, T::Error> {
         let mut bytes = [0u8; 1];
@@ -112,6 +99,8 @@ where
         Ok(bytes[0] == who_am_i)
     }
 
+
+    
     /// Initializes the sensor with selected settings
     pub fn begin_sensor(&mut self) -> Result <(), T::Error> {        
         self.interface.write(
@@ -124,35 +113,14 @@ where
         )?;
         Ok(())
     }    
-
-    /// Raw sensor reading (3 bytes of pressure data and 2 bytes of temperature data)
-    fn read_sensor_raw(&mut self) -> Result<(i32, i32), T::Error> {
-        let mut data = [0u8;5];
-        self.interface.read(Registers::PRESS_OUT_XL.addr(), &mut data)?;
-        let p: i32 = (data[2] as i32) << 16 | (data[1] as i32) << 8 | (data[0] as i32);
-        let t: i32 = (data[4] as i32) << 8 | (data[3] as i32);
-        Ok((p, t))
-    }
-
-    /// Calculated pressure reading in hPa
-    pub fn read_pressure(&mut self) -> Result<f32, T::Error> {
-        let (p,_t) = self.read_sensor_raw()?;
-        let pressure: f32 = (p as f32) / PRESS_SCALE;
-        Ok(pressure)
-    }
-
-    /// Calculated temperaure reading in degrees Celsius 
-    pub fn read_temperature(&mut self) -> Result<f32, T::Error> {
-        let (_p,t) = self.read_sensor_raw()?;
-        let temperature: f32 = (t as f32) / TEMP_SCALE;
-        Ok(temperature)
-    }
+    */
+    
     
     /// Clear selected bits using a bitmask
-    fn clear_register_bit_flag(&mut self, address: Registers, bitmask: Bitmasks) -> Result<(), T::Error> {
+    fn clear_register_bit_flag(&mut self, address: Registers, bitmask: u8) -> Result<(), T::Error> {
         let mut reg_data = [0u8;1];
         self.interface.read(address.addr(), &mut reg_data)?;
-        let bitmask = bitmask.bitmask();
+        //let bitmask = bitmask.bitmask();
         let payload: u8 = reg_data[0] & !bitmask;
         self.interface.write(            
             address.addr(),
@@ -162,10 +130,10 @@ where
     }    
 
     /// Set selected bits using a bitmask
-    fn set_register_bit_flag(&mut self, address: Registers, bitmask: Bitmasks) -> Result<(), T::Error> {
+    fn set_register_bit_flag(&mut self, address: Registers, bitmask: u8) -> Result<(), T::Error> {
         let mut reg_data = [0u8;1];
         self.interface.read(address.addr(), &mut reg_data)?;
-        let payload: u8 = reg_data[0] | bitmask.bitmask();
+        let payload: u8 = reg_data[0] | bitmask;
         self.interface.write(            
             address.addr(),
             payload,
@@ -173,11 +141,31 @@ where
         Ok(())
     }
 
-    /// Enable single shot data acquisition (self cleared by hardware)
-    pub fn enable_one_shot(&mut self) -> Result<(), T::Error> {
-        self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::ONE_SHOT)?;
-        Ok(())
-    }
+
     
 
+}
+
+
+/// Output data rate and power mode selection (ODR_XL). (Refer to Table 68)
+#[derive(Debug, Clone, Copy)]
+pub enum ODR {
+    /// Power-down / One-shot mode enabled
+    PowerDown = 0b000,
+    /// 1 Hz
+    _1Hz = 0b001,
+    /// 10 Hz
+    _10Hz = 0b010,
+    /// 25 Hz
+    _25Hz = 0b011,
+    /// 50 Hz
+    _50Hz = 0b100,
+    /// 75 Hz
+    _75Hz = 0b101,    
+}
+
+impl ODR {
+    pub fn value(self) -> u8 {
+        (self as u8) << 4
+    }
 }
