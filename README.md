@@ -11,6 +11,7 @@ Inspired by and partially based on [another STMicroelectronics MEMS driver](http
 
 This driver allows you to:
 - read pressure and temperature
+- set datarate
 - check if sensor is reachable
 
 ## WORK IN PROGRESS:
@@ -18,7 +19,6 @@ This driver allows you to:
 This library is work in progress. Not all features are implemented yet. Contributions are welcome.
 
 ### TO DO:
-- [ ] output data rate setting
 - [ ] interrupts configuration
 - [ ] FIFO configuration
 - [ ] reading reference pressure
@@ -26,7 +26,6 @@ This library is work in progress. Not all features are implemented yet. Contribu
 - [ ] reading data ready status
 - [ ] reading data overrun status
 
-[Some blog post](https://nebelgrau77.github.io/posts/rust_driver/)
 
 ## The device
 
