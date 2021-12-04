@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-...
+### Added
+- FIFO control, configuration and reading 
+- interrupt pin configuration
+- low-pass filter configuration
 
 ## [0.0.3] - 2021-12-04
 

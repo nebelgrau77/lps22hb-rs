@@ -1,4 +1,6 @@
-//! Various sensor functions
+//! Functions related to sensor measurements: reading value or status, setting offset and reference
+//!
+//! TO DO: add reference pressure setting
 
 use super::*;
 
@@ -38,6 +40,15 @@ where
         Ok(temperature)
     }
 
+    /// Calculated reference pressure reading in hPa
+    pub fn read_reference_pressure(&mut self) -> Result<f32, T::Error> {
+        let mut data = [0u8; 3];
+        self.interface.read(Registers::REF_P_XL.addr(), &mut data)?;
+        let p: i32 = (data[2] as i32) << 16 | (data[1] as i32) << 8 | (data[0] as i32);
+        let pressure: f32 = (p as f32) / PRESS_SCALE;
+        Ok(pressure)
+    }
+
     /// Read pressure offset value, 16-bit data that can be used to implement One-Point Calibration (OPC) after soldering.
     pub fn read_pressure_offset(&mut self) -> Result<i16, T::Error> {
         let mut data = [0u8; 2];
@@ -46,41 +57,18 @@ where
         Ok(o)
     }
 
-    /// Reboot. Refreshes the content of the internal registers stored in the Flash memory block.
-    /// At device power-up the content of the Flash memory block is transferred to the internal registers
-    /// related to the trimming functions to allow correct behavior of the device itself.
-    /// If for any reason the content of the trimming registers is modified,
-    /// it is sufficient to use this bit to restore the correct values.
-    /// At the end of the boot process the BOOT bit is set again to ‘0’ by hardware.
-    /// The BOOT bit takes effect after one ODR clock cycle.
-    pub fn reboot(&mut self) -> Result<(), T::Error> {
-        self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::BOOT)
-    }
+    /// Set the pressure offset value (VALUE IN hPA!)
+    pub fn set_pressure_offset(&mut self, offset: u16) -> Result<(), T::Error> {
+        let mut payload = [0u8; 2];
+        let offset = offset * 16;
 
-    /// Run software reset (resets the device to the power-on configuration, takes 4 usec)
-    pub fn software_reset(&mut self) -> Result<(), T::Error> {
-        self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::SWRESET)
-    }
+        payload[0] = (offset & 0xff) as u8; // lower byte
+        payload[1] = (offset >> 8) as u8; // upper byte
 
+        self.interface.write(Registers::RPDS_L.addr(), payload[0])?;
+        self.interface.write(Registers::RPDS_H.addr(), payload[1])?;
 
-    /// Is reboot phase running?
-    pub fn reboot_runnung(&mut self) -> Result<bool, T::Error> {
-        self.is_register_bit_flag_high(Registers::INT_SOURCE, Bitmasks::BOOT_STATUS)
-    }
-
-    /// Has any interrupt event been generated? (self clearing)
-    pub fn interrupt_active(&mut self) -> Result<bool, T::Error> {
-        self.is_register_bit_flag_high(Registers::INT_SOURCE, Bitmasks::IA)
-    }
-
-    /// Has low differential pressure event been generated? (self clearing)
-    pub fn low_pressure_event_occurred(&mut self) -> Result<bool, T::Error> {
-        self.is_register_bit_flag_high(Registers::INT_SOURCE, Bitmasks::PL)
-    }
-
-    /// Has high differential pressure event been generated? (self clearing)
-    pub fn high_pressure_event_occurred(&mut self) -> Result<bool, T::Error> {
-        self.is_register_bit_flag_high(Registers::INT_SOURCE, Bitmasks::PH)
+        Ok(())
     }
 
     /// Has new pressure data overwritten the previous one?
@@ -102,7 +90,4 @@ where
     pub fn temperature_data_available(&mut self) -> Result<bool, T::Error> {
         self.is_register_bit_flag_high(Registers::STATUS, Bitmasks::T_DA)
     }
-
-
 }
-

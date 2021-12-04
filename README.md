@@ -15,16 +15,15 @@ This driver allows you to:
 - check if sensor is reachable
 - enable and configure interrupts
 - read data ready and overrun status
+- control and configure FIFO
 
 ## WORK IN PROGRESS:
 
 This library is work in progress. Not all features are implemented yet. Currently only the I2C interface is implemented. Contributions are welcome.
 
 ### TO DO:
-- [ ] FIFO configuration
-- [ ] reading reference pressure
-- [ ] calibration
 
+- [ ] calibration
 
 ## The device
 

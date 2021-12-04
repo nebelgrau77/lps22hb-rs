@@ -35,19 +35,6 @@ where
         }
     }
 
-    /// Configuration of the interrupt generation (enabled/disable)
-    pub fn int_generation_enable(&mut self, flag: bool) -> Result<(), T::Error> {
-        match flag {
-            true => self.set_register_bit_flag(Registers::INTERRUPT_CFG, Bitmasks::DIFF_EN),
-            false => self.clear_register_bit_flag(Registers::INTERRUPT_CFG, Bitmasks::DIFF_EN),
-        }
-    }
-
-    /// Resets the Autozero function. Self-cleared.
-    pub fn autozero_reset(&mut self) -> Result<(), T::Error> {
-        self.set_register_bit_flag(Registers::INTERRUPT_CFG, Bitmasks::RESET_AZ)
-    }
-
     /// AUTOZERO: when set to ‘1’, the measured pressure is used
     /// as the reference in REF_P (0x15, 0x16, 0x17).
     /// From that point on the output pressure registers are updated and the same value
@@ -61,6 +48,11 @@ where
             true => self.set_register_bit_flag(Registers::INTERRUPT_CFG, Bitmasks::AUTOZERO),
             false => self.clear_register_bit_flag(Registers::INTERRUPT_CFG, Bitmasks::AUTOZERO),
         }
+    }
+
+    /// Resets the Autozero function. Self-cleared.
+    pub fn autozero_reset(&mut self) -> Result<(), T::Error> {
+        self.set_register_bit_flag(Registers::INTERRUPT_CFG, Bitmasks::RESET_AZ)
     }
 
     /// Disables I2C interface (default 0, I2C enabled)
@@ -79,39 +71,59 @@ where
         }
     }
 
-    /// Enable interrupt on differential pressure low event
-    pub fn diff_press_low_enable(&mut self, flag: bool) -> Result<(), T::Error> {
+    /// Register address automatically incremented during a multiple byte access with a serial interface (I2C or SPI).
+    /// Default value: enabled
+    pub fn address_incrementing(&mut self, flag: bool) -> Result<(), T::Error> {
         match flag {
-            true => self.set_register_bit_flag(Registers::INTERRUPT_CFG, Bitmasks::PLE),
-            false => self.clear_register_bit_flag(Registers::INTERRUPT_CFG, Bitmasks::PLE),
+            true => self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::IF_ADD_INC),
+            false => self.clear_register_bit_flag(Registers::CTRL_REG2, Bitmasks::IF_ADD_INC),
         }
     }
 
-    /// Enable interrupt on differential pressure high event
-    pub fn diff_press_high_enable(&mut self, flag: bool) -> Result<(), T::Error> {
+    /// Reset low-pass filter.  If the LPFP is active, in order to avoid the transitory phase,
+    /// the filter can be reset by reading this register before generating pressure measurements.
+    pub fn reset_lowpass_filter(&mut self) -> Result<(), T::Error> {
+        let mut _data = [0u8; 1];
+        self.interface
+            .read(Registers::LPFP_RES.addr(), &mut _data)?;
+        Ok(())
+    }
+
+    /// Enable low-pass filter on pressure data in Continuous mode
+    pub fn lowpass_filter_enable(&mut self, flag: bool) -> Result<(), T::Error> {
         match flag {
-            true => self.set_register_bit_flag(Registers::INTERRUPT_CFG, Bitmasks::PHE),
-            false => self.clear_register_bit_flag(Registers::INTERRUPT_CFG, Bitmasks::PHE),
+            true => self.set_register_bit_flag(Registers::CTRL_REG1, Bitmasks::EN_LPFP),
+            false => self.clear_register_bit_flag(Registers::CTRL_REG1, Bitmasks::EN_LPFP),
         }
     }
 
-    /// Interrupt request latching to INT_SOURCE
-    pub fn int_latch_enable(&mut self, flag: bool) -> Result<(), T::Error> {
+    /// Switches the LPFP_CFG bit.
+    /// Depending on the status of the EN_LPFP bit the device bandwith is ODR/9 or ODR/20 (see Table 18)
+    pub fn lowpass_filter_configure(&mut self, flag: bool) -> Result<(), T::Error> {
         match flag {
-            true => self.set_register_bit_flag(Registers::INTERRUPT_CFG, Bitmasks::LIR),
-            false => self.clear_register_bit_flag(Registers::INTERRUPT_CFG, Bitmasks::LIR),
+            true => self.set_register_bit_flag(Registers::CTRL_REG1, Bitmasks::LPFP_CFG),
+            false => self.clear_register_bit_flag(Registers::CTRL_REG1, Bitmasks::LPFP_CFG),
         }
     }
 
-    /// Data-ready signal on INT_DRDY pin
-    pub fn data_signal_drdy_enable(&mut self, flag: bool) -> Result<(), T::Error> {
-        match flag {
-            true => self.set_register_bit_flag(Registers::CTRL_REG3, Bitmasks::DRDY),
-            false => self.clear_register_bit_flag(Registers::CTRL_REG3, Bitmasks::DRDY),
-        }
+    /// Reboot. Refreshes the content of the internal registers stored in the Flash memory block.
+    /// At device power-up the content of the Flash memory block is transferred to the internal registers
+    /// related to the trimming functions to allow correct behavior of the device itself.
+    /// If for any reason the content of the trimming registers is modified,
+    /// it is sufficient to use this bit to restore the correct values.
+    /// At the end of the boot process the BOOT bit is set again to ‘0’ by hardware.
+    /// The BOOT bit takes effect after one ODR clock cycle.
+    pub fn reboot(&mut self) -> Result<(), T::Error> {
+        self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::BOOT)
     }
 
- 
+    /// Is reboot phase running?
+    pub fn reboot_running(&mut self) -> Result<bool, T::Error> {
+        self.is_register_bit_flag_high(Registers::INT_SOURCE, Bitmasks::BOOT_STATUS)
+    }
 
-
+    /// Run software reset (resets the device to the power-on configuration, takes 4 usec)
+    pub fn software_reset(&mut self) -> Result<(), T::Error> {
+        self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::SWRESET)
+    }
 }
