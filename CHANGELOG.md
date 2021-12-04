@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+...
+
+## [0.0.3] - 2021-12-04
+
 ### Added
 - Control functions: reboot, software reset
 - Configuration functions: BDU, autozero, I2C disable, SPI mode
@@ -14,8 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Reading status of interrupts
 - Reading data availability and overrun status
 
-...
-
+[0.0.3]: https://github.com/nebelgrau77/lps22hb-rs/releases/tag/v0.0.3
 
 ## [0.0.2] - 2021-08-15
 
