@@ -13,18 +13,17 @@ This driver allows you to:
 - read pressure and temperature
 - set datarate
 - check if sensor is reachable
+- enable and configure interrupts
+- read data ready and overrun status
 
 ## WORK IN PROGRESS:
 
-This library is work in progress. Not all features are implemented yet. Contributions are welcome.
+This library is work in progress. Not all features are implemented yet. Currently only the I2C interface is implemented. Contributions are welcome.
 
 ### TO DO:
-- [ ] interrupts configuration
 - [ ] FIFO configuration
 - [ ] reading reference pressure
 - [ ] calibration
-- [ ] reading data ready status
-- [ ] reading data overrun status
 
 
 ## The device
