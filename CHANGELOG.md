@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- Control functions: reboot, software reset
+- Configuration functions: BDU, autozero, I2C disable, SPI mode
+- Interrupt configuration
+- Reading status of interrupts
+- Reading data availability and overrun status
+
 ...
 
 

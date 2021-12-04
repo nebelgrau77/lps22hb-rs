@@ -69,7 +69,6 @@ const TEMP_SCALE: f32 = 100.0;
 const PRESS_SCALE: f32 = 4096.0;
 
 
-
 /// Holds the driver instance with the selected interface
 pub struct LPS22HB<T> {
     interface: T,
@@ -142,13 +141,23 @@ where
         Ok(())
     }
 
+    /// Read a byte from the given register.
+    fn read_register(&mut self, address: Registers) -> Result<u8, T::Error> {
+        let mut reg_data = [0u8];
+        self.interface.read(address.addr(), &mut reg_data)?;
+        Ok(reg_data[0])
+    }
 
-    
+    /// Check if specific bits are set.
+    fn is_register_bit_flag_high(&mut self, address: Registers, bitmask: u8) -> Result<bool, T::Error> {
+        let data = self.read_register(address)?;
+        Ok((data & bitmask) != 0)
+    }
 
 }
 
 
-/// Output data rate and power mode selection (ODR_XL). (Refer to Table 68)
+/// Output data rate and power mode selection (ODR). (Refer to Table 17)
 #[derive(Debug, Clone, Copy)]
 pub enum ODR {
     /// Power-down / One-shot mode enabled
@@ -170,3 +179,59 @@ impl ODR {
         (self as u8) << 4
     }
 }
+
+/// SPI interface mode
+#[derive(Debug, Clone, Copy)]
+pub enum SPI_Mode {
+    /// 4-wire mode (default)
+    _4wire,
+    /// 3-wire mode
+    _3wire,    
+}
+
+/// INT_DRDY pin configuration. (Refer to Table 19)
+#[derive(Debug, Clone, Copy)]
+pub enum INT_DRDY {
+    /// Data signal (see CTRL_REG4)
+    DataSignal = 0b00,
+    /// Pressure high
+    P_high = 0b01,
+    /// Pressure low
+    P_low = 0b10,
+    /// Pressure low or high
+    P_low_or_high = 0b011,
+    
+}
+
+impl INT_DRDY {
+    pub fn value(self) -> u8 {
+        self as u8 // no need to shift, bits 0:1 (INT_S)
+    }
+}
+
+/// FIFO mode selection. (Refer to Table 20)
+#[derive(Debug, Clone, Copy)]
+pub enum FIFO_MODE {
+    /// Bypass mode
+    Bypass = 0b000,
+    /// FIFO mode
+    FIFO = 0b001,
+    /// Stream mode
+    Stream = 0b010,
+    /// Stream-to-FIFO mode
+    Stream_to_FIFO = 0b011,
+    /// Bypass-to-stream mode
+    Bypass_to_stream = 0b100,
+    /// Dynamic-stream mode
+    Dynamic_Stream = 0b110,
+    /// Bypass-to-FIFO mode
+    Bypass_to_FIFO = 0b111,
+    
+}
+
+impl FIFO_MODE {
+    pub fn value(self) -> u8 {
+        (self as u8) << 5 // shifted into the right position, can be used directly
+    }
+}
+
