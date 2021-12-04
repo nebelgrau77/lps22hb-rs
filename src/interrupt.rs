@@ -32,7 +32,7 @@ where
     }
 
     /// Interrupt active high/low (default active high)
-    pub fn interrupt_active(&mut self, setting: INT_ACTIVE) -> Result<(), T::Error> {
+    pub fn interrupt_pin_active(&mut self, setting: INT_ACTIVE) -> Result<(), T::Error> {
         match setting {
             INT_ACTIVE::High => {
                 self.clear_register_bit_flag(Registers::CTRL_REG3, Bitmasks::INT_H_L)
@@ -58,7 +58,7 @@ where
             .read(Registers::CTRL_REG3.addr(), &mut reg_data)?;
         let mut payload = reg_data[0];
         payload &= !Bitmasks::INT_S_MASK;
-        payload |= mode.value();
+        payload |= config.value();
         self.interface.write(Registers::CTRL_REG3.addr(), payload)?;
         Ok(())
     }
