@@ -11,9 +11,8 @@
 //! [`enable_one_shot()`]: struct.LPS22HB.html#method.enable_one_shot
 //! [`set_datarate()`]: struct.LPS22HB.html#method.set_datarate
 //!
-//! __NOTE__: This is a very early version of the crate. Only I2C interface is supported at the moment.
-//!  
-//!
+//! __NOTE__: Only I2C interface is supported at the moment.
+//!  //!
 //! ### Datasheet: [LPS22HB](https://www.st.com/resource/en/datasheet/lps22hb.pdf)
 //!
 //! ## Usage examples (see also examples folder)
@@ -38,9 +37,6 @@
 //! let temperature = lps22.read_temperature().unwrap();
 //! ```
 //!
-
-// TO DO:
-// - add other enums (FIFO settings, interrupts, etc.)
 
 #![no_std]
 //#![deny(warnings, missing_docs)]
@@ -98,8 +94,6 @@ where
         self.interface.read(register, &mut bytes)?;
         Ok(bytes[0] == who_am_i)
     }
-
-
 
     /// Initializes the sensor with selected settings
     pub fn begin_sensor(&mut self) -> Result <(), T::Error> {
@@ -224,7 +218,7 @@ pub enum FIFO_MODE {
 
 impl FIFO_MODE {
     pub fn value(self) -> u8 {
-        (self as u8) << 5 // shifted into the right position, can be used directly
+        (self as u8) << 5 // shifted into the correct position, can be used directly
     }
 }
 

@@ -8,9 +8,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Added
-- FIFO control, configuration and reading 
-- interrupt pin configuration
-- low-pass filter configuration
 
 ## [0.0.3] - 2021-12-04
 
@@ -20,6 +17,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Interrupt configuration
 - Reading status of interrupts
 - Reading data availability and overrun status
+- FIFO control, configuration and reading 
+- Interrupt pin configuration
+- Low-pass filter configuration
 
 [0.0.3]: https://github.com/nebelgrau77/lps22hb-rs/releases/tag/v0.0.3
 

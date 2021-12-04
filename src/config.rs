@@ -1,7 +1,6 @@
 //! Various functions related to configuration
 //!
 //! TO DO:
-//! - add all the other settings here
 
 use super::*;
 
@@ -82,7 +81,7 @@ where
 
     /// Reset low-pass filter.  If the LPFP is active, in order to avoid the transitory phase,
     /// the filter can be reset by reading this register before generating pressure measurements.
-    pub fn reset_lowpass_filter(&mut self) -> Result<(), T::Error> {
+    pub fn lowpass_filter_reset(&mut self) -> Result<(), T::Error> {
         let mut _data = [0u8; 1];
         self.interface
             .read(Registers::LPFP_RES.addr(), &mut _data)?;
@@ -126,4 +125,10 @@ where
     pub fn software_reset(&mut self) -> Result<(), T::Error> {
         self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::SWRESET)
     }
+
+    /// Enable low-power mode (must be done only with the device in power-down mode)
+    pub fn enable_low_power(&mut self) -> Result<(), T::Error> {        
+        self.set_register_bit_flag(Registers::RES_CONF, Bitmasks::LC_EN)
+    }
+
 }

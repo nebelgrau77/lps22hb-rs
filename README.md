@@ -23,7 +23,8 @@ This library is work in progress. Not all features are implemented yet. Currentl
 
 ### TO DO:
 
-- [ ] calibration
+- [ ] reference pressure setting
+- [ ] FIFO watermark level selection
 
 ## The device
 
