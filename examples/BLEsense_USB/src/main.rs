@@ -94,25 +94,6 @@ fn main() -> ! {
 
     led.set_high().unwrap();
 
-
-    /*
-    // define pins for UART
-    // using A6 for CTS and A7 for RTS
-    let rx_pin = port1.p1_10.into_floating_input().degrade();
-    let tx_pin = port1.p1_03.into_push_pull_output(Level::Low).degrade();
-    let ct_pin = port0.p0_28.into_floating_input().degrade(); // CTS: not used but necessary for configuration, pin may vary
-    let rt_pin = port0.p0_03.into_push_pull_output(Level::Low).degrade(); // RTS: not used but necessary for configuration, pin may vary
-        
-    let uart_pins = hal::uarte::Pins{
-            rxd: rx_pin,
-            txd: tx_pin,
-            cts: Some(ct_pin),
-            rts: Some(rt_pin),
-            };
-    
-    // set up UART
-    let mut serial = Uarte::new(p.UARTE0, uart_pins, Parity::EXCLUDED, Baudrate::BAUD9600);
-    */
     // configure I2C interface for the LPS22HB driver
     let i2c_interface = I2cInterface::init(i2c1, I2cAddress::SA0_GND);
        
@@ -130,18 +111,14 @@ fn main() -> ! {
 
         let mut text_buf = ArrayString::<[u8; 32]>::new();
 
-        //lps22.enable_one_shot().unwrap();
-
         let mut buf = ArrayString::<[u8; 32]>::new();
 
-        //let temp = lps22.read_temperature().unwrap();            
-        //let press = lps22.read_pressure().unwrap();
+        let temp = lps22.read_temperature().unwrap();            
+        let press = lps22.read_pressure().unwrap();
         let id = lps22.get_device_id().unwrap();
 
-        //format_reading(&mut buf, press, temp);
-        format_simple(&mut buf, id);
-
-        //serial.write_str(buf.as_str()).unwrap();
+        format_reading(&mut buf, press, temp);
+        //format_simple(&mut buf, id);
 
         serial.write(buf.as_bytes());
 
@@ -153,7 +130,6 @@ fn main() -> ! {
             led.set_high().unwrap();
             }
 
-        //delay.delay_ms(1000_u32);
     }    
 }
 
