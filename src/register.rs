@@ -1,7 +1,5 @@
-//! Register mapping
+//! Register mapping and bitmasks
 //!
-//! TO DO:
-//! - add other bitmasks
 
 /// LPS22HB Registers
 #[allow(non_camel_case_types)]

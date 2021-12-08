@@ -29,9 +29,8 @@
 //! use lps22hb::*;
 //!
 //! let mut lps22 = LPS22HB.new(i2c_interface);
-//!
-//!
-//! lps22.enable_one_shot().unwrap();
+//!//!
+//! lps22.one_shot().unwrap();
 //!
 //! let pressure = lps22.read_pressure().unwrap();
 //! let temperature = lps22.read_temperature().unwrap();
@@ -54,7 +53,8 @@ pub mod interrupt;
 use interrupt::*;
 
 pub mod register;
-use register::{Bitmasks, Registers};
+//use register::{Bitmasks, Registers};
+use register::*;
 
 pub mod interface;
 use interface::Interface;
@@ -109,6 +109,13 @@ where
     }
     */
 
+    /// Read a byte from the given register.
+    fn read_register(&mut self, address: Registers) -> Result<u8, T::Error> {
+        let mut reg_data = [0u8];
+        self.interface.read(address.addr(), &mut reg_data)?;
+        Ok(reg_data[0])
+    }
+
     /// Clear selected bits using a bitmask
     fn clear_register_bit_flag(&mut self, address: Registers, bitmask: u8) -> Result<(), T::Error> {
         let mut reg_data = [0u8; 1];
@@ -126,13 +133,6 @@ where
         let payload: u8 = reg_data[0] | bitmask;
         self.interface.write(address.addr(), payload)?;
         Ok(())
-    }
-
-    /// Read a byte from the given register.
-    fn read_register(&mut self, address: Registers) -> Result<u8, T::Error> {
-        let mut reg_data = [0u8];
-        self.interface.read(address.addr(), &mut reg_data)?;
-        Ok(reg_data[0])
     }
 
     /// Check if specific bits are set.
@@ -178,25 +178,6 @@ pub enum SPI_Mode {
     _3wire,
 }
 
-/// INT_DRDY pin configuration. (Refer to Table 19)
-#[derive(Debug, Clone, Copy)]
-pub enum INT_DRDY {
-    /// Data signal (see CTRL_REG4)
-    DataSignal = 0b00,
-    /// Pressure high
-    P_high = 0b01,
-    /// Pressure low
-    P_low = 0b10,
-    /// Pressure low or high
-    P_low_or_high = 0b011,
-}
-
-impl INT_DRDY {
-    pub fn value(self) -> u8 {
-        self as u8 // no need to shift, bits 0:1 (INT_S)
-    }
-}
-
 /// FIFO mode selection. (Refer to Table 20)
 #[derive(Debug, Clone, Copy)]
 pub enum FIFO_MODE {
@@ -219,6 +200,25 @@ pub enum FIFO_MODE {
 impl FIFO_MODE {
     pub fn value(self) -> u8 {
         (self as u8) << 5 // shifted into the correct position, can be used directly
+    }
+}
+
+/// INT_DRDY pin configuration. (Refer to Table 19)
+#[derive(Debug, Clone, Copy)]
+pub enum INT_DRDY {
+    /// Data signal (see CTRL_REG4)
+    DataSignal = 0b00,
+    /// Pressure high
+    P_high = 0b01,
+    /// Pressure low
+    P_low = 0b10,
+    /// Pressure low or high
+    P_low_or_high = 0b011,
+}
+
+impl INT_DRDY {
+    pub fn value(self) -> u8 {
+        self as u8 // no need to shift, bits 0:1 (INT_S)
     }
 }
 

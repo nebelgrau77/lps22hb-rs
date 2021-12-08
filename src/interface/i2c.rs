@@ -1,6 +1,7 @@
 //! I2C Interface
 use super::Interface;
 use embedded_hal::blocking::i2c::{Write, WriteRead};
+
 /// Errors in this crate
 #[derive(Debug)]
 pub enum Error<CommE> {
@@ -50,19 +51,21 @@ where
     type Error = Error<CommE>;
 
     fn write(&mut self, addr: u8, value: u8) -> Result<(), Self::Error> {
-        let sensor_addr = self.dev_addr;        
+        //let sensor_addr = self.dev_addr;        
         core::prelude::v1::Ok(
             self.i2c
-                .write(sensor_addr, &[addr, value])
+                //.write(sensor_addr, &[addr, value])
+                .write(self.dev_addr, &[addr, value])
                 .map_err(Error::Comm)?,
         )
     }
 
     fn read(&mut self, addr: u8, buffer: &mut [u8]) -> Result<(), Self::Error> {
-        let sensor_addr = self.dev_addr;        
+        //let sensor_addr = self.dev_addr;        
         core::prelude::v1::Ok(
             self.i2c
-                .write_read(sensor_addr, &[addr], buffer)
+                //.write_read(sensor_addr, &[addr], buffer)
+                .write_read(self.dev_addr, &[addr], buffer)
                 .map_err(Error::Comm)?,
         )
     }

@@ -8,12 +8,6 @@ impl<T, E> LPS22HB<T>
 where
     T: Interface<Error = E>,
 {
-    /// Enable single shot data acquisition (self cleared by hardware)
-    pub fn enable_one_shot(&mut self) -> Result<(), T::Error> {
-        self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::ONE_SHOT)?;
-        Ok(())
-    }
-
     /// Set output data rate        
     pub fn set_datarate(&mut self, odr: ODR) -> Result<(), T::Error> {
         let mut reg_data = [0u8];
@@ -25,6 +19,15 @@ where
         self.interface.write(Registers::CTRL_REG1.addr(), payload)?;
         Ok(())
     }
+
+    // --- THIS FUNCTION CAN BE REMOVED
+    /*
+    /// Enable single shot data acquisition (self cleared by hardware)
+    pub fn enable_one_shot(&mut self) -> Result<(), T::Error> {
+        self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::ONE_SHOT)?;
+        Ok(())
+    }
+     */
 
     /// Enable or disable block data update
     pub fn bdu_enable(&mut self, flag: bool) -> Result<(), T::Error> {
@@ -79,32 +82,6 @@ where
         }
     }
 
-    /// Reset low-pass filter.  If the LPFP is active, in order to avoid the transitory phase,
-    /// the filter can be reset by reading this register before generating pressure measurements.
-    pub fn lowpass_filter_reset(&mut self) -> Result<(), T::Error> {
-        let mut _data = [0u8; 1];
-        self.interface
-            .read(Registers::LPFP_RES.addr(), &mut _data)?;
-        Ok(())
-    }
-
-    /// Enable low-pass filter on pressure data in Continuous mode
-    pub fn lowpass_filter_enable(&mut self, flag: bool) -> Result<(), T::Error> {
-        match flag {
-            true => self.set_register_bit_flag(Registers::CTRL_REG1, Bitmasks::EN_LPFP),
-            false => self.clear_register_bit_flag(Registers::CTRL_REG1, Bitmasks::EN_LPFP),
-        }
-    }
-
-    /// Switches the LPFP_CFG bit.
-    /// Depending on the status of the EN_LPFP bit the device bandwith is ODR/9 or ODR/20 (see Table 18)
-    pub fn lowpass_filter_configure(&mut self, flag: bool) -> Result<(), T::Error> {
-        match flag {
-            true => self.set_register_bit_flag(Registers::CTRL_REG1, Bitmasks::LPFP_CFG),
-            false => self.clear_register_bit_flag(Registers::CTRL_REG1, Bitmasks::LPFP_CFG),
-        }
-    }
-
     /// Reboot. Refreshes the content of the internal registers stored in the Flash memory block.
     /// At device power-up the content of the Flash memory block is transferred to the internal registers
     /// related to the trimming functions to allow correct behavior of the device itself.
@@ -126,9 +103,54 @@ where
         self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::SWRESET)
     }
 
+    // SWITCHING INTO POWER-DOWN COULD BE ADDED TO THIS FUNCTION
     /// Enable low-power mode (must be done only with the device in power-down mode)
-    pub fn enable_low_power(&mut self) -> Result<(), T::Error> {        
+    pub fn enable_low_power(&mut self) -> Result<(), T::Error> {
         self.set_register_bit_flag(Registers::RES_CONF, Bitmasks::LC_EN)
     }
 
+    // LOWPASS FILTER ENABLING AND CONFIGURING COULD BE MOVED TOGETHER
+
+    /// Enable and configure low-pass filter on pressure data in Continuous mode
+    pub fn lowpass_filter(&mut self, enable: bool, configure: bool) -> Result<(), T::Error> {
+        match enable {
+            true => self.set_register_bit_flag(Registers::CTRL_REG1, Bitmasks::EN_LPFP),
+            false => self.clear_register_bit_flag(Registers::CTRL_REG1, Bitmasks::EN_LPFP),
+        }?;
+        match configure {
+            true => self.set_register_bit_flag(Registers::CTRL_REG1, Bitmasks::LPFP_CFG),
+            false => self.clear_register_bit_flag(Registers::CTRL_REG1, Bitmasks::LPFP_CFG),
+        }?;
+        Ok(())
+    }
+
+    /*
+
+    /// Enable low-pass filter on pressure data in Continuous mode
+    pub fn lowpass_filter_enable(&mut self, flag: bool) -> Result<(), T::Error> {
+        match flag {
+            true => self.set_register_bit_flag(Registers::CTRL_REG1, Bitmasks::EN_LPFP),
+            false => self.clear_register_bit_flag(Registers::CTRL_REG1, Bitmasks::EN_LPFP),
+        }
+    }
+
+    /// Switches the LPFP_CFG bit.
+    /// Depending on the status of the EN_LPFP bit the device bandwith is ODR/9 or ODR/20 (see Table 18)
+    pub fn lowpass_filter_configure(&mut self, flag: bool) -> Result<(), T::Error> {
+        match flag {
+            true => self.set_register_bit_flag(Registers::CTRL_REG1, Bitmasks::LPFP_CFG),
+            false => self.clear_register_bit_flag(Registers::CTRL_REG1, Bitmasks::LPFP_CFG),
+        }
+    }
+
+     */
+
+    /// Reset low-pass filter.  If the LPFP is active, in order to avoid the transitory phase,
+    /// the filter can be reset by reading this register before generating pressure measurements.
+    pub fn lowpass_filter_reset(&mut self) -> Result<(), T::Error> {
+        let mut _data = [0u8; 1];
+        self.interface
+            .read(Registers::LPFP_RES.addr(), &mut _data)?;
+        Ok(())
+    }
 }

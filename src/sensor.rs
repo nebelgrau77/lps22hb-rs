@@ -4,6 +4,15 @@
 
 use super::*;
 
+#[derive(Debug)]
+/// Contents of the STATUS register (pressure and temperature overrun and data availability flags)
+pub struct DataStatus {
+    pub temp_overrun: bool,
+    pub press_overrun: bool,
+    pub temp_available: bool,
+    pub press_available: bool,
+}
+
 impl<T, E> LPS22HB<T>
 where
     T: Interface<Error = E>,
@@ -71,6 +80,35 @@ where
         Ok(())
     }
 
+    /// Get all the flags from the STATUS_REG register
+    pub fn get_data_status(&mut self) -> Result<DataStatus, T::Error> {
+        let status = DataStatus {
+            /// Has new temperature data overwritten the previous one?
+            temp_overrun: self.is_register_bit_flag_high(Registers::STATUS, Bitmasks::T_OR)?,
+            /// Has new pressure data overwritten the previous one?
+            press_overrun: self.is_register_bit_flag_high(Registers::STATUS, Bitmasks::P_OR)?,
+            /// Is new temperature data available?
+            temp_available: self.is_register_bit_flag_high(Registers::STATUS, Bitmasks::T_DA)?,
+            /// Is new pressure data available?            
+            press_available: self.is_register_bit_flag_high(Registers::STATUS, Bitmasks::P_DA)?,
+        };
+        Ok(status)
+    }
+
+    /// Triggers the one-shot mode, and a new acquisition starts when it is required.
+    /// Enabling this mode is possible only if the device was previously in power-down mode.
+    /// Once the acquisition is completed and the output registers updated,
+    /// the device automatically enters in power-down mode. ONE_SHOT bit self-clears itself.
+    pub fn one_shot(&mut self) -> Result<(), T::Error> {
+        self.set_datarate(ODR::PowerDown)?; // make sure that Power down/one shot mode is enabled
+        self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::ONE_SHOT)?;
+        Ok(())
+    }
+
+    // --- THESE FUNCTIONS CAN BE REMOVED ---
+
+    /*
+
     /// Has new pressure data overwritten the previous one?
     pub fn pressure_data_overrun(&mut self) -> Result<bool, T::Error> {
         self.is_register_bit_flag_high(Registers::STATUS, Bitmasks::P_OR)
@@ -90,4 +128,6 @@ where
     pub fn temperature_data_available(&mut self) -> Result<bool, T::Error> {
         self.is_register_bit_flag_high(Registers::STATUS, Bitmasks::T_DA)
     }
+
+     */
 }

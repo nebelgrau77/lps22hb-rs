@@ -92,7 +92,8 @@ fn main() -> ! {
 
     loop {       
 
-        lps22.enable_one_shot().unwrap();
+        //lps22.enable_one_shot().unwrap();
+        lps22.one_shot().unwrap();
 
         let mut buf = ArrayString::<[u8; 32]>::new();
 

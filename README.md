@@ -24,7 +24,7 @@ This library is work in progress. Not all features are implemented yet. Currentl
 ### TO DO:
 
 - [ ] reference pressure setting
-- [ ] FIFO watermark level selection
+- [ ] add SPI interface
 
 ## The device
 

@@ -7,8 +7,29 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.1.0] - 2021-12-08
+
 ### Added
 - FIFO watermark level setting
+- Pressure and temperature data availability and overrun flags read into a new DataStatus struct
+- Oneshot() function setting the power-down mode and enabling the ONE_SHOT bit in one go
+- enable_fifo() function that enables and configures FIFO, using a struct for configuration
+- get_fifo_status() (reads FIFO status into a struct)
+- enable_interrupts() function that enables interupts and configures the interrupt pin, using a struct for configuration
+- get_int_status function that reads the interrupt status into a struct
+- lowpass_filter function replacing two separate ..enable and ..configure functions
+
+### Removed
+- Separate functions for pressure and temperature availability and overrun flag reading
+- Separare fifo_enable, fifo_mode_config, stop_on_fth and set_watermark level functions 
+- Separate fifo_threshold_status and fifo_overrun_status
+- Separate int_generation_enable, int_latch_enable, data_signal_drdy_enable, interrupt_pin_active, interrupt_pin_config, int_drdy_config functions
+- Separate interrupt_active, low_pressure_event_occurred and high_pressure_event_occurred functions
+- Separate lowpass_filter_enable and lowpass_filter_configure functions
+
+### Changed
+- fifo_stored_data_level renamed read_fifo_level and turned private
+
 
 ## [0.0.3] - 2021-12-04
 

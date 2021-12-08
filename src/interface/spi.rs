@@ -1,6 +1,11 @@
 //! SPI Interface
+//! THIS ALL HAS TO BE MODIFIED - CURRENTLY JUST A COPY-PASTE FROM ANOTHER CRATE
+
+
 use super::Interface;
 use embedded_hal::{blocking::spi::Transfer, blocking::spi::Write, digital::v2::OutputPin};
+
+/*
 
 /// R/W bit should be high for SPI Read operation
 const SPI_READ: u8 = 0x80;
@@ -85,3 +90,4 @@ where
         Ok(())
     }
 }
+ */
