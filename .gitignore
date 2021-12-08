@@ -5,6 +5,7 @@ notes.md
 *.bin
 *.hex
 *.elf
+*.zip
 /examples/**/target
 *.bin
 **/*.bkp
