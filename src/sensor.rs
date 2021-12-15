@@ -32,7 +32,7 @@ where
      pub fn read_pressure(&mut self) -> Result<f32, T::Error> {
         let mut data = [0u8; 3];
         self.interface.read(
-            Registers::PRESS_OUT_XL.addr() | Bitmasks::MULTIBYTE,
+            Registers::PRESS_OUT_XL.addr(),
             &mut data,
         )?;
         let p: i32 = (data[2] as i32) << 16 | (data[1] as i32) << 8 | (data[0] as i32);
@@ -44,7 +44,7 @@ where
     pub fn read_temperature(&mut self) -> Result<f32, T::Error> {
         let mut data = [0u8; 2];
         self.interface.read(
-            Registers::TEMP_OUT_L.addr() | Bitmasks::MULTIBYTE,
+            Registers::TEMP_OUT_L.addr(),
             &mut data,
         )?;
         let t: i16 = (data[1] as i16) << 8 | (data[0] as i16);
@@ -155,7 +155,7 @@ where
     pub fn get_data_status(&mut self) -> Result<DataStatus, T::Error> {
         // TO DO: use this value for reading all the bitflags in one go
         // use bitmasks
-        let reg_value = self.read_register(Registers::STATUS_REG)?;
+        let reg_value = self.read_register(Registers::STATUS)?;
 
         let status = DataStatus {
             /// Has new pressure data overwritten the previous one?
