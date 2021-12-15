@@ -16,22 +16,11 @@ use hal::{pac::{CorePeripherals, Peripherals},
         prelude::*,
         gpio::Level,
         delay::Delay,        
-        Twim,
-        uarte::{Uarte,Parity,Baudrate}, 
+        Twim,        
         clocks::Clocks,
-        usbd::{UsbPeripheral, Usbd}        
         };
 
-use usb_device::device::{UsbDeviceBuilder, UsbVidPid};
-use usb_device::test_class::TestClass;
-use usbd_serial::{SerialPort, USB_CLASS_CDC};
-        
-
 use cortex_m_rt::entry;
-
-use arrayvec::ArrayString;
-use core::fmt;
-use core::fmt::Write;
 
 use lps22hb::{interface::{I2cInterface,
                         i2c::I2cAddress}, interrupt::InterruptConfig, fifo::FIFOConfig};
@@ -48,7 +37,6 @@ fn main() -> ! {
     let clocks = Clocks::new(p.CLOCK);
     let clocks = clocks.enable_ext_hfosc();
 
-
     let port0 = hal::gpio::p0::Parts::new(p.P0);
     let port1 = hal::gpio::p1::Parts::new(p.P1);
     
@@ -58,30 +46,13 @@ fn main() -> ! {
     
     let _r_pullup = port1.p1_00.into_push_pull_output(Level::High); // necessary for SDA1 and SCL1 to work, as per board schematics
     
-
     let mut red = port0.p0_24.into_push_pull_output(Level::High);
     let mut green = port0.p0_16.into_push_pull_output(Level::High);    
-    //let mut blue = port0.p0_06.into_push_pull_output(Level::High);
-
-
+    let mut blue = port0.p0_06.into_push_pull_output(Level::High);
 
     // set up delay provider
     let mut delay = Delay::new(core.SYST);
    
-    let usb_bus = Usbd::new(UsbPeripheral::new(p.USBD, &clocks));
-
-    let mut serial = SerialPort::new(&usb_bus);
-
-    let mut usb_dev = UsbDeviceBuilder::new(&usb_bus, UsbVidPid(0x16c0, 0x27dd))
-                                        .manufacturer("Fake company")
-                                        .product("Serial port")
-                                        .serial_number("TEST")
-                                        .device_class(USB_CLASS_CDC)
-                                        .max_packet_size_0(64) // makes control transfers 8x faster
-                                        .build();
-
-
-
     // define I2C1 pins
     let scl1 = port0.p0_15.into_floating_input().degrade(); // clock
     let sda1 = port0.p0_14.into_floating_input().degrade(); // data
@@ -109,76 +80,65 @@ fn main() -> ! {
 
     lps22.set_datarate(ODR::_1Hz).unwrap();
 
-    let int_config = InterruptConfig{enable_fifo_full: true,
-                                    ..Default::default()};
+    let int_config = InterruptConfig{enable_low_event: true,
+                                    data_signal_config: INT_DRDY::P_low,
+                                ..Default::default()};
 
     lps22.enable_interrupts(true, int_config).unwrap();
 
     let fifo_config = FIFOConfig{enable_watermark: true,
-                                fifo_mode: FIFO_MODE::FIFO, 
-                                watermark_level: 8,
-                                ..Default::default()};
+        fifo_mode: FIFO_MODE::FIFO, 
+        watermark_level: 8,
+        ..Default::default()};
 
-    lps22.enable_fifo(true, fifo_config).unwrap();
+    //lps22.enable_fifo(true, fifo_config).unwrap();
+
 
     loop {       
-
-        if !usb_dev.poll(&mut [&mut serial]) {
-            continue;
-        }
-
-        let mut text_buf = ArrayString::<[u8; 32]>::new();
-
-        let mut buf = ArrayString::<[u8; 32]>::new();
-
-        let temp = lps22.read_temperature().unwrap();            
-        let press = lps22.read_pressure().unwrap();
-        let id = lps22.get_device_id().unwrap();
-
-        format_reading(&mut buf, press, temp);
-        //format_simple(&mut buf, id);
 
         let int_status = lps22.get_int_status().unwrap();
 
         // toggle the LED
-        if int_status.interrupt_active {
-            red.set_high().unwrap();
+        if int_status.diff_press_low {
+            if red.is_set_high().unwrap() {
+                red.set_low().unwrap();
+            } else {
+                red.set_high().unwrap();
             }
-        else {
-            red.set_low().unwrap();
-            }
+        }
+
 
         let fifo_status = lps22.get_fifo_status().unwrap();
 
         // toggle the LED
         if fifo_status.fifo_thresh_reached {
-            green.set_high().unwrap();
-            }
-        else {
             green.set_low().unwrap();
             }
+        else {
+            green.set_high().unwrap();
+            }
 
-        serial.write(buf.as_bytes());
+        let data_status = lps22.get_data_status().unwrap();
+        
+        // toggle the LED
+        if data_status.press_available {
+            if blue.is_set_high().unwrap() {
+                blue.set_low().unwrap();
+                delay.delay_ms(50_u32);
+            } else {
+                blue.set_high().unwrap();
+                delay.delay_ms(50_u32);
+            }
+        }
 
+        /*
         // toggle the LED
         if led.is_set_high().unwrap() {
             led.set_low().unwrap();
-            }
-        else {
+        } else {
             led.set_high().unwrap();
-            }
-
+        }
+         */
     }    
 }
 
-
-/// Simple formatter to pretty print the sensor values
-fn format_simple(buf: &mut ArrayString<[u8; 32]>, sensor_id: u8) {
-    fmt::write(buf, format_args!("my name is: {}\r\n", sensor_id)).unwrap();
-}
-
-
-/// Simple formatter to pretty print the sensor values
-fn format_reading(buf: &mut ArrayString<[u8; 32]>, press: f32, temp: f32) {
-    fmt::write(buf, format_args!("P: {:.02}hPA, T: {:.02}C\r\n", press, temp)).unwrap();
-}

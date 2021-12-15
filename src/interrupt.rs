@@ -1,5 +1,9 @@
 //! Various functions related to interrupts
 //!
+//! TO DO: 
+//! - "enable" flag in the interrupt enable function must be moved to the config, called "enable_differential"
+//! - interrupt status reading must be in one go, as with latching on it would clear the register by reading the first bit the way it's configured now
+//! 
 
 use super::*;
 
@@ -38,7 +42,7 @@ impl Default for InterruptConfig {
             enable_fifo_fth: false,                     // disabled (CTRL_REG3)
             enable_fifo_overrun: false,                 // disabled (CTRL_REG3)
             enable_data_ready: false,                   // disabled (CTRL_REG3)
-            enable_latch_interrupt: false,              // inferrupt request not latched (INTERRUPT_CFG)
+            enable_latch_interrupt: false,              // interrupt request not latched (INTERRUPT_CFG)
             enable_low_event: false,                    // disable interrupt request on low pressure event (INTERRUPT_CFG)
             enable_high_event: false,                   // disable interrupt request on low pressure event (INTERRUPT_CFG)
         }

@@ -41,26 +41,26 @@
 //#![deny(warnings, missing_docs)]
 
 pub mod sensor;
-use sensor::*;
+//use sensor::*;
 
 pub mod config;
-use config::*;
+//use config::*;
 
 pub mod fifo;
-use fifo::*;
+//use fifo::*;
 
 pub mod interrupt;
-use interrupt::*;
+//use interrupt::*;
 
 pub mod register;
-//use register::{Bitmasks, Registers};
-use register::*;
+use register::{Bitmasks, Registers};
+//use register::*;
 
 pub mod interface;
 use interface::Interface;
 
 /// Sensor's ID
-const WHOAMI: u8 = 0b10110001; // decimal value 177
+//const WHOAMI: u8 = 0b10110001; // decimal value 177
 
 /// The output of the temperature sensor must be divided by 100, see p. 10 of the datasheet.
 const TEMP_SCALE: f32 = 100.0;
@@ -119,8 +119,7 @@ where
     /// Clear selected bits using a bitmask
     fn clear_register_bit_flag(&mut self, address: Registers, bitmask: u8) -> Result<(), T::Error> {
         let mut reg_data = [0u8; 1];
-        self.interface.read(address.addr(), &mut reg_data)?;
-        //let bitmask = bitmask.bitmask();
+        self.interface.read(address.addr(), &mut reg_data)?;        
         let payload: u8 = reg_data[0] & !bitmask;
         self.interface.write(address.addr(), payload)?;
         Ok(())
@@ -147,6 +146,7 @@ where
 }
 
 /// Output data rate and power mode selection (ODR). (Refer to Table 17)
+#[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy)]
 pub enum ODR {
     /// Power-down / One-shot mode enabled
@@ -170,6 +170,7 @@ impl ODR {
 }
 
 /// SPI interface mode
+#[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy)]
 pub enum SPI_Mode {
     /// 4-wire mode (default)
@@ -179,6 +180,7 @@ pub enum SPI_Mode {
 }
 
 /// FIFO mode selection. (Refer to Table 20)
+#[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy)]
 pub enum FIFO_MODE {
     /// Bypass mode
@@ -204,6 +206,7 @@ impl FIFO_MODE {
 }
 
 /// INT_DRDY pin configuration. (Refer to Table 19)
+#[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy)]
 pub enum INT_DRDY {
     /// Data signal (see CTRL_REG4)
@@ -223,6 +226,7 @@ impl INT_DRDY {
 }
 
 /// Interrupt active setting for the INT_DRDY pin: active high (default) or active low
+#[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy)]
 pub enum INT_ACTIVE {
     /// Active high
@@ -231,11 +235,72 @@ pub enum INT_ACTIVE {
     Low,
 }
 
+impl INT_ACTIVE {
+    pub fn status(self) -> bool {
+        let status = match self {
+            INT_ACTIVE::High => false,
+            INT_ACTIVE::Low => true,
+        };
+        status
+    }
+}
+
 /// Interrupt pad setting for INT_DRDY pin: push-pull (default) or open-drain.
+#[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy)]
 pub enum INT_PIN {
     /// Push-pull
     PushPull,
     /// Open drain
     OpenDrain,
+}
+
+impl INT_PIN {
+    pub fn status(self) -> bool {
+        let status = match self {
+            INT_PIN::PushPull => false,
+            INT_PIN::OpenDrain => true,
+        };
+        status
+    }
+}
+
+/// Settings for various FIFO- and interrupt-related flags, Enabled or Disabled
+#[allow(non_camel_case_types)]
+#[derive(Debug, Clone, Copy)]
+pub enum FLAG {
+    /// Enabled (bit set)
+    Enabled,
+    /// Disabled (bit cleared)
+    Disabled,
+}
+
+impl FLAG {
+    pub fn status(self) -> bool {
+        let status = match self {
+            FLAG::Disabled => false,
+            FLAG::Enabled => true,
+        };
+        status
+    }
+}
+
+/// FIFO on/off
+#[allow(non_camel_case_types)]
+#[derive(Debug, Clone, Copy)]
+pub enum FIFO_ON {
+    /// Enabled (bit set)
+    Enabled,
+    /// Disabled (bit cleared)
+    Disabled,
+}
+
+impl FIFO_ON {
+    pub fn status(self) -> bool {
+        let status = match self {
+            FIFO_ON::Disabled => false,
+            FIFO_ON::Enabled => true,
+        };
+        status
+    }
 }

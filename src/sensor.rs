@@ -25,6 +25,34 @@ where
         Ok(whoami)
     }
 
+
+    /* */
+
+     /// Calculated pressure reading in hPa
+     pub fn read_pressure(&mut self) -> Result<f32, T::Error> {
+        let mut data = [0u8; 3];
+        self.interface.read(
+            Registers::PRESS_OUT_XL.addr() | Bitmasks::MULTIBYTE,
+            &mut data,
+        )?;
+        let p: i32 = (data[2] as i32) << 16 | (data[1] as i32) << 8 | (data[0] as i32);
+        let pressure = (p as f32) / PRESS_SCALE; // no need to take care of negative values
+        Ok(pressure)
+    }
+
+    /// Calculated temperaure reading in degrees Celsius
+    pub fn read_temperature(&mut self) -> Result<f32, T::Error> {
+        let mut data = [0u8; 2];
+        self.interface.read(
+            Registers::TEMP_OUT_L.addr() | Bitmasks::MULTIBYTE,
+            &mut data,
+        )?;
+        let t: i16 = (data[1] as i16) << 8 | (data[0] as i16);
+        let temperature = (t as f32) / TEMP_SCALE;
+        Ok(temperature)
+    }
+
+    /*
     /// Raw sensor reading (3 bytes of pressure data and 2 bytes of temperature data)
     fn read_sensor_raw(&mut self) -> Result<(i32, i32), T::Error> {
         let mut data = [0u8; 5];
@@ -49,6 +77,8 @@ where
         Ok(temperature)
     }
 
+     */
+
     /// Calculated reference pressure reading in hPa
     pub fn read_reference_pressure(&mut self) -> Result<f32, T::Error> {
         let mut data = [0u8; 3];
@@ -66,6 +96,28 @@ where
         Ok(o)
     }
 
+    /// Read threshold value for pressure interrupt generation
+    pub fn read_threshold(&mut self) -> Result<i16, T::Error> {
+        let mut data = [0u8; 2];
+        self.interface.read(Registers::THS_P_L.addr(), &mut data)?;
+        let o: i16 = (data[1] as i16) << 8 | (data[0] as i16);
+        Ok(o)
+    }
+ 
+    /// Set the pressure offset value (VALUE IN hPA!)
+    pub fn set_threshold(&mut self, threshold: u16) -> Result<(), T::Error> {
+        let mut payload = [0u8; 2];
+        let threshold = threshold * 16;
+
+        payload[0] = (threshold & 0xff) as u8; // lower byte
+        payload[1] = (threshold >> 8) as u8; // upper byte
+
+        self.interface.write(Registers::THS_P_L.addr(), payload[0])?;
+        self.interface.write(Registers::THS_P_H.addr(), payload[1])?;
+
+        Ok(())
+    }
+
     /// Set the pressure offset value (VALUE IN hPA!)
     pub fn set_pressure_offset(&mut self, offset: u16) -> Result<(), T::Error> {
         let mut payload = [0u8; 2];
@@ -80,6 +132,8 @@ where
         Ok(())
     }
 
+    /*
+
     /// Get all the flags from the STATUS_REG register
     pub fn get_data_status(&mut self) -> Result<DataStatus, T::Error> {
         let status = DataStatus {
@@ -92,6 +146,40 @@ where
             /// Is new pressure data available?            
             press_available: self.is_register_bit_flag_high(Registers::STATUS, Bitmasks::P_DA)?,
         };
+        Ok(status)
+    }
+
+     */
+
+    /// Get all the flags from the STATUS_REG register
+    pub fn get_data_status(&mut self) -> Result<DataStatus, T::Error> {
+        // TO DO: use this value for reading all the bitflags in one go
+        // use bitmasks
+        let reg_value = self.read_register(Registers::STATUS_REG)?;
+
+        let status = DataStatus {
+            /// Has new pressure data overwritten the previous one?
+            press_overrun: match reg_value & Bitmasks::P_OR {
+                0 => false,
+                _ => true,
+            },
+            /// Has new temperature data overwritten the previous one?
+            temp_overrun: match reg_value & Bitmasks::T_OR {
+                0 => false,
+                _ => true,
+            },
+            /// Is new pressure data available?
+            press_available: match reg_value & Bitmasks::P_DA {
+                0 => false,
+                _ => true,
+            },
+            /// Is new temperature data available?
+            temp_available: match reg_value & Bitmasks::T_DA {
+                0 => false,
+                _ => true,
+            },
+        };
+
         Ok(status)
     }
 

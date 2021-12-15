@@ -32,6 +32,11 @@ The LPS22HB is an ultra-compact piezoresistive absolute pressure sensor which fu
 
 Datasheet: [LPS22HB](https://www.st.com/resource/en/datasheet/dm00140895.pdf)
 
+For more information regarding the use and configuration of the device, especially the interrupts, data ready signals and FIFO functionalities, refer to:
+
+* [LPS22HB/LPS25HB digital pressure sensors: hardware guidelines for system integration](https://www.st.com/resource/en/application_note/an4672-lps22hblps25hb-digital-pressure-sensors-hardware-guidelines-for-system-integration-stmicroelectronics.pdf)
+* [Digital pressure sensors: efficient design tips](https://www.st.com/resource/en/design_tip/dt0132--digital-pressure-sensor-efficient-design-tips-stmicroelectronics.pdf)
+
 ## Usage
 
 To use this driver, import this crate and an `embedded_hal` implementation,

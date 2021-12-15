@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- FLAG enum
+- FIFO_ON enum
+- threshold and offset reading and setting
+
+
+### Changed
+- pressure and temperature read separately
+- data status read in one go
+
 ## [0.1.0] - 2021-12-08
 
 ### Added
