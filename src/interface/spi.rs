@@ -55,7 +55,7 @@ where
 
     fn read(&mut self, addr: u8, buffer: &mut [u8]) -> Result<(), Self::Error> {
         self.cs.set_low().map_err(Error::Pin)?;
-        self.spi.write(&[SPI_READ addr]).map_err(Error::Comm)?;
+        self.spi.write(&[SPI_READ | addr]).map_err(Error::Comm)?;
         self.spi.transfer(buffer).map_err(Error::Comm)?;
         self.cs.set_high().map_err(Error::Pin)?;        
         Ok(())
