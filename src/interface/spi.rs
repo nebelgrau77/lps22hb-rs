@@ -1,16 +1,9 @@
 //! SPI Interface
-//! THIS ALL HAS TO BE MODIFIED - CURRENTLY JUST A COPY-PASTE FROM ANOTHER CRATE
-
-
 use super::Interface;
 use embedded_hal::{blocking::spi::Transfer, blocking::spi::Write, digital::v2::OutputPin};
 
-/*
-
 /// R/W bit should be high for SPI Read operation
 const SPI_READ: u8 = 0x80;
-/// Magnetometer MS bit. When 0, does not increment the address; when 1, increments the address in multiple reads. (Refer to page 34)
-const MS_BIT: u8 = 0x40;
 
 /// Errors in this crate
 #[derive(Debug)]
@@ -22,72 +15,50 @@ pub enum Error<CommE, PinE> {
 }
 
 /// This combines the SPI Interface and chip select pins
-pub struct SpiInterface<SPI, AG, M> {
+pub struct SpiInterface<SPI, CS> {
     spi: SPI,
-    ag_cs: AG,
-    m_cs: M,
+    cs: CS, 
 }
 
-impl<SPI, AG, M, CommE, PinE> SpiInterface<SPI, AG, M>
+impl<SPI, CS, CommE, PinE> SpiInterface<SPI, CS>
 where
     SPI: Transfer<u8, Error = CommE> + Write<u8, Error = CommE>,
-    AG: OutputPin<Error = PinE>,
-    M: OutputPin<Error = PinE>,
+    CS: OutputPin<Error = PinE>,    
 {
     /// Initializes an Interface with `SPI` instance and AG and M chip select `OutputPin`s
     /// # Arguments
-    /// * `spi` - SPI instance
-    /// * `ag_cs` - Chip Select pin for Accelerometer/Gyroscope
-    /// * `m_cs` - Chip Select pin for Magnetometer
-    pub fn init(spi: SPI, ag_cs: AG, m_cs: M) -> Self {
-        Self { spi, ag_cs, m_cs }
+    /// * `spi` - SPI instance    
+    /// * `cs` - Chip Select pin
+    pub fn init(spi: SPI, cs: CS) -> Self {
+        Self { spi, cs }
     }
 }
 
 /// Implementation of `Interface`
-impl<SPI, AG, M, CommE, PinE> Interface for SpiInterface<SPI, AG, M>
+impl<SPI, CS, CommE, PinE> Interface for SpiInterface<SPI, CS>
 where
-    SPI: Transfer<u8, Error = CommE> + Write<u8, Error = CommE>,
-    AG: OutputPin<Error = PinE>,
-    M: OutputPin<Error = PinE>,
+    SPI: Transfer<u8, Error = CommE> + Write<u8, Error = CommE>,    
+    CS: OutputPin<Error = PinE>,
 {
     type Error = Error<CommE, PinE>;
 
-    fn write(&mut self, sensor: Sensor, addr: u8, value: u8) -> Result<(), Self::Error> {
+    fn write(&mut self, addr: u8, value: u8) -> Result<(), Self::Error> {
         let bytes = [addr, value];
-        match sensor {
-            Accelerometer | Gyro | Temperature => {
-                self.ag_cs.set_low().map_err(Error::Pin)?;
-                self.spi.write(&bytes).map_err(Error::Comm)?;
-                self.ag_cs.set_high().map_err(Error::Pin)?;
-            }
-            Magnetometer => {
-                self.m_cs.set_low().map_err(Error::Pin)?;
-                self.spi.write(&bytes).map_err(Error::Comm)?;
-                self.m_cs.set_high().map_err(Error::Pin)?;
-            }
-        }
+        self.cs.set_low().map_err(Error::Pin)?;
+        self.spi.write(&bytes).map_err(Error::Comm)?;
+        self.cs.set_high().map_err(Error::Pin)?;
         Ok(())
     }
+   
+    // MS_BIT doesn't seem to be necessary
+    // "The multiple byte read command is performed by adding blocks of 8 clock pulses to the previous one."
 
-    fn read(&mut self, sensor: Sensor, addr: u8, buffer: &mut [u8]) -> Result<(), Self::Error> {
-        match sensor {
-            Accelerometer | Gyro | Temperature => {
-                self.ag_cs.set_low().map_err(Error::Pin)?;
-                self.spi.write(&[SPI_READ | addr]).map_err(Error::Comm)?;
-                self.spi.transfer(buffer).map_err(Error::Comm)?;
-                self.ag_cs.set_high().map_err(Error::Pin)?;
-            }
-            Magnetometer => {
-                self.m_cs.set_low().map_err(Error::Pin)?;
-                self.spi
-                    .write(&[SPI_READ | MS_BIT | addr])
-                    .map_err(Error::Comm)?;
-                self.spi.transfer(buffer).map_err(Error::Comm)?;
-                self.m_cs.set_high().map_err(Error::Pin)?;
-            }
-        }
+    fn read(&mut self, addr: u8, buffer: &mut [u8]) -> Result<(), Self::Error> {
+        self.cs.set_low().map_err(Error::Pin)?;
+        self.spi.write(&[SPI_READ addr]).map_err(Error::Comm)?;
+        self.spi.transfer(buffer).map_err(Error::Comm)?;
+        self.cs.set_high().map_err(Error::Pin)?;        
         Ok(())
     }
 }
- */
+ 

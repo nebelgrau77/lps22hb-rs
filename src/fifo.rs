@@ -153,7 +153,7 @@ where
         let fifo_level_value = self.read_fifo_level()?;
 
         let status = FifoStatus {
-
+            /// Is FIFO filling equal or higher than the threshold?
             fifo_thresh_reached: match reg_value & Bitmasks::FTH_FIFO {
                 0 => false,
                 _ => true,

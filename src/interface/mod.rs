@@ -1,16 +1,12 @@
 //! Interface trait
-// for now it's limited to I2C 
-//pub mod spi;
-//pub use self::spi::SpiInterface;
+pub mod spi;
+pub use self::spi::SpiInterface;
 pub mod i2c;
 pub use self::i2c::I2cInterface;
 
 /// Interface Trait. `SpiInterface` and `I2cInterface` implement this.
 pub trait Interface {
     type Error;
-
-    // removed "sensor" argument as there's only one
-
     /// Writes a byte to a sensor's specified register address.
     /// # Arguments    
     /// * `addr` - register address

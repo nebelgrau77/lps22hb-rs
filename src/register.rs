@@ -63,93 +63,93 @@ impl Registers {
 /// LPS22HB Bit masks
 #[allow(non_camel_case_types)]
 pub struct Bitmasks;
-
+#[allow(dead_code)]
 impl Bitmasks {
     // === INTERRUPT_CFG (0x0B) ===
-    pub const AUTORIFP: u8 = 0b1000_0000;
-    pub const RESET_ARP: u8 = 0b0100_0000;
-    pub const AUTOZERO: u8 = 0b0010_0000;
-    pub const RESET_AZ: u8 = 0b0001_0000;
+    pub (crate) const AUTORIFP: u8 = 0b1000_0000;
+    pub (crate) const RESET_ARP: u8 = 0b0100_0000;
+    pub (crate) const AUTOZERO: u8 = 0b0010_0000;
+    pub (crate) const RESET_AZ: u8 = 0b0001_0000;
     /// Enable interrupt generation
-    pub const DIFF_EN: u8 = 0b0000_1000;
+    pub (crate) const DIFF_EN: u8 = 0b0000_1000;
     /// Latch Interrupt Request
-    pub const LIR: u8 = 0b0000_0100;
+    pub (crate) const LIR: u8 = 0b0000_0100;
     /// Enable interrupt generation on Low Pressure Event
-    pub const PLE: u8 = 0b0000_0010;
+    pub (crate) const PLE: u8 = 0b0000_0010;
     /// Enable interrupt generation on High Pressure Event
-    pub const PHE: u8 = 0b0000_0001;
+    pub (crate) const PHE: u8 = 0b0000_0001;
 
     // === CTRL_REG1 (0x10) ===
     /// Output data rate selection
-    pub const ODR_MASK: u8 = 0b0111_0000;
+    pub (crate) const ODR_MASK: u8 = 0b0111_0000;
     /// Low pass filter on pressure data in Continuous mode
-    pub const EN_LPFP: u8 = 0b0000_1000;
-    pub const LPFP_CFG: u8 = 0b0000_0100;
+    pub (crate) const EN_LPFP: u8 = 0b0000_1000;
+    pub (crate) const LPFP_CFG: u8 = 0b0000_0100;
     /// Block data update
-    pub const BDU: u8 = 0b0000_0010;
+    pub (crate) const BDU: u8 = 0b0000_0010;
     /// SPI Interface Mode Selection
-    pub const SIM: u8 = 0b0000_0001;
+    pub (crate) const SIM: u8 = 0b0000_0001;
 
     // === CTRL_REG2 (0x11) ===
-    pub const BOOT: u8 = 0b1000_0000;
-    pub const FIFO_EN: u8 = 0b0100_0000;
-    pub const STOP_ON_FTH: u8 = 0b0010_0000;
+    pub (crate) const BOOT: u8 = 0b1000_0000;
+    pub (crate) const FIFO_EN: u8 = 0b0100_0000;
+    pub (crate) const STOP_ON_FTH: u8 = 0b0010_0000;
     /// Increment address during multiple byte read (I2C/SPI), default 1 (enabled)
-    pub const IF_ADD_INC: u8 = 0b0001_0000;
-    pub const I2C_DIS: u8 = 0b0000_1000;
-    pub const SWRESET: u8 = 0b0000_0100;
+    pub (crate) const IF_ADD_INC: u8 = 0b0001_0000;
+    pub (crate) const I2C_DIS: u8 = 0b0000_1000;
+    pub (crate) const SWRESET: u8 = 0b0000_0100;
     /// Enable single shot to acquire a new dataset
-    pub const ONE_SHOT: u8 = 0b0000_0001;
+    pub (crate) const ONE_SHOT: u8 = 0b0000_0001;
 
     // === CTRL_REG3 (0x12) ===
-    pub const INT_H_L: u8 = 0b1000_0000;
-    pub const PP_OD: u8 = 0b0100_0000;
+    pub (crate) const INT_H_L: u8 = 0b1000_0000;
+    pub (crate) const PP_OD: u8 = 0b0100_0000;
     /// FIFO full flag on INT_DRDY pin
-    pub const F_FSS5: u8 = 0b0010_0000;
+    pub (crate) const F_FSS5: u8 = 0b0010_0000;
     /// FIFO watermark status on INT_DRDY pin
-    pub const F_FTH: u8 = 0b0001_0000;
+    pub (crate) const F_FTH: u8 = 0b0001_0000;
     /// FIFO watermark status on INT_DRDY pin
-    pub const F_OVR: u8 = 0b0000_1000;
+    pub (crate) const F_OVR: u8 = 0b0000_1000;
     /// Data-ready signal on INT_DRDY pin
-    pub const DRDY: u8 = 0b0000_0100;
+    pub (crate) const DRDY: u8 = 0b0000_0100;
     /// Data signal on INT_DRDY pin control bits
-    pub const INT_S_MASK: u8 = 0b0000_0011;
+    pub (crate) const INT_S_MASK: u8 = 0b0000_0011;
 
     // === FIFO_CTRL (0x14) ===
     /// FIFO mode selection
-    pub const F_MODE_MASK: u8 = 0b1110_0000;
+    pub (crate) const F_MODE_MASK: u8 = 0b1110_0000;
     /// FIFO watermark level selection
-    pub const WTM_MASK: u8 = 0b0001_1111;
+    pub (crate) const WTM_MASK: u8 = 0b0001_1111;
 
     // === RES_CONF (0x1A) ===
     /// Low current mode enable; must be changed in power-down mode
-    pub const LC_EN: u8 = 0b0000_0001;
+    pub (crate) const LC_EN: u8 = 0b0000_0001;
 
     // === INT_SOURCE (0x25) ===
     /// Reboot phase status (1 - running)
-    pub const BOOT_STATUS: u8 = 0b1000_0000;
+    pub (crate) const BOOT_STATUS: u8 = 0b1000_0000;
     /// Interrupt active
-    pub const IA: u8 = 0b0000_0100;
+    pub (crate) const IA: u8 = 0b0000_0100;
     /// Differential pressure low
-    pub const PL: u8 = 0b0000_0010;
+    pub (crate) const PL: u8 = 0b0000_0010;
     /// Differential pressure high
-    pub const PH: u8 = 0b0000_0001;
+    pub (crate) const PH: u8 = 0b0000_0001;
 
     // === FIFO_STATUS (0x26) ===
     /// FIFO watermark status
-    pub const FTH_FIFO: u8 = 0b1000_0000;
+    pub (crate) const FTH_FIFO: u8 = 0b1000_0000;
     /// FIFO overrun status
-    pub const OVR: u8 = 0b0100_0000;
+    pub (crate) const OVR: u8 = 0b0100_0000;
     /// FIFO stored data level
-    pub const FSS_MASK: u8 = 0b0011_1111;
+    pub (crate) const FSS_MASK: u8 = 0b0011_1111;
 
     // === STATUS (0x27) ===
     /// Temperature data overrun
-    pub const T_OR: u8 = 0b0010_0000;
+    pub (crate) const T_OR: u8 = 0b0010_0000;
     /// Pressure data overrun
-    pub const P_OR: u8 = 0b0001_0000;
+    pub (crate) const P_OR: u8 = 0b0001_0000;
     /// Temperature data available
-    pub const T_DA: u8 = 0b0000_0010;
+    pub (crate) const T_DA: u8 = 0b0000_0010;
     /// Pressure data available
-    pub const P_DA: u8 = 0b0000_0001;
+    pub (crate) const P_DA: u8 = 0b0000_0001;
 }
