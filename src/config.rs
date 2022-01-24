@@ -1,6 +1,6 @@
 //! Various functions related to configuration
 //!
-//! TO DO:
+//! TO DO: check if all the functions are implemented
 
 use super::*;
 
@@ -19,15 +19,6 @@ where
         self.interface.write(Registers::CTRL_REG1.addr(), payload)?;
         Ok(())
     }
-
-    // --- THIS FUNCTION CAN BE REMOVED
-    /*
-    /// Enable single shot data acquisition (self cleared by hardware)
-    pub fn enable_one_shot(&mut self) -> Result<(), T::Error> {
-        self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::ONE_SHOT)?;
-        Ok(())
-    }
-     */
 
     /// Enable or disable block data update
     pub fn bdu_enable(&mut self, flag: bool) -> Result<(), T::Error> {
@@ -123,28 +114,7 @@ where
         }?;
         Ok(())
     }
-
-    /*
-
-    /// Enable low-pass filter on pressure data in Continuous mode
-    pub fn lowpass_filter_enable(&mut self, flag: bool) -> Result<(), T::Error> {
-        match flag {
-            true => self.set_register_bit_flag(Registers::CTRL_REG1, Bitmasks::EN_LPFP),
-            false => self.clear_register_bit_flag(Registers::CTRL_REG1, Bitmasks::EN_LPFP),
-        }
-    }
-
-    /// Switches the LPFP_CFG bit.
-    /// Depending on the status of the EN_LPFP bit the device bandwith is ODR/9 or ODR/20 (see Table 18)
-    pub fn lowpass_filter_configure(&mut self, flag: bool) -> Result<(), T::Error> {
-        match flag {
-            true => self.set_register_bit_flag(Registers::CTRL_REG1, Bitmasks::LPFP_CFG),
-            false => self.clear_register_bit_flag(Registers::CTRL_REG1, Bitmasks::LPFP_CFG),
-        }
-    }
-
-     */
-
+   
     /// Reset low-pass filter.  If the LPFP is active, in order to avoid the transitory phase,
     /// the filter can be reset by reading this register before generating pressure measurements.
     pub fn lowpass_filter_reset(&mut self) -> Result<(), T::Error> {

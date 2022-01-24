@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.1.2] - 2022-01-24
+
+### Changed
+- `enable_fifo` now called `configure_fifo`
+- `configure_interrupts` does not have the `flag` argument anymore
+- enabling of differential pressure events moved to the interrupt configuration struct
+
+### Fixed
+- upper bits of `INTERRUPT_CFG` register not overwritten anymore
+
 ## [0.1.1] - 2022-01-23
 
 ### Added
