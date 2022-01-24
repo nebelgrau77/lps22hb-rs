@@ -24,7 +24,7 @@ This library is work in progress. Not all features are implemented yet. Currentl
 ### TO DO:
 
 - [ ] reference pressure setting
-- [ ] add SPI interface
+- [ ] test SPI interface (doesn't seem to work correctly)
 
 ## The device
 
