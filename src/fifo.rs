@@ -1,6 +1,8 @@
 //! Various functions related to FIFO
 //! 
-//! TO DO: check if all FIFO-related functions are implemented
+//! TO DO: 
+//! - improve watermark level reading (fifo_level)
+//! - check if all FIFO-related functions are implemented
 
 use super::*;
 
@@ -102,6 +104,9 @@ where
             },
              
             /// Read FIFO stored data level
+            
+            // replace with a bitmask?
+
             fifo_level: fifo_level_value,
         };
         Ok(status)

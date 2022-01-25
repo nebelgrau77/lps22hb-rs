@@ -124,6 +124,59 @@ where
         */
         
 
+        /*
+
+                /**
+                 * @brief  pressure_ref:   The Reference pressure value is a 24-bit data
+                *         expressed as 2’s complement. The value is used when AUTOZERO
+                *         or AUTORIFP function is enabled.[set]
+                *
+                * @param  ctx    Read / write interface definitions
+                * @param  buff   Buffer that contains data to write
+                * @retval        Interface status (MANDATORY: return 0 -> no Error).
+                *
+                */
+                int32_t lps22hb_pressure_ref_set(stmdev_ctx_t *ctx, int32_t val)
+                {
+                uint8_t buff[3];
+                int32_t ret;
+
+                buff[2] = (uint8_t)((uint32_t)val / 65536U);
+                buff[1] = (uint8_t)((uint32_t)val - (buff[2] * 65536U)) / 256U;
+                buff[0] = (uint8_t)((uint32_t)val - (buff[2] * 65536U) -
+                                    (buff[1] * 256U));
+                ret =  lps22hb_write_reg(ctx, LPS22HB_REF_P_XL, buff, 3);
+
+                return ret;
+                }
+
+                /**
+                 * @brief  pressure_ref:   The Reference pressure value is a 24-bit data
+                *         expressed as 2’s complement. The value is used when AUTOZERO
+                *         or AUTORIFP function is enabled.[get]
+                *
+                * @param  ctx    Read / write interface definitions
+                * @param  buff   Buffer that stores data read
+                * @retval        Interface status (MANDATORY: return 0 -> no Error).
+                *
+                */
+                int32_t lps22hb_pressure_ref_get(stmdev_ctx_t *ctx, int32_t *val)
+                {
+                uint8_t buff[3];
+                int32_t ret;
+
+                ret =  lps22hb_read_reg(ctx, LPS22HB_REF_P_XL, buff, 3);
+                *val = (int32_t)buff[2];
+                *val = (*val * 256) + (int32_t)buff[1];
+                *val = (*val * 256) + (int32_t)buff[0];
+
+                return ret;
+                }
+
+        */
+
+
+
 
         
         Ok(())
