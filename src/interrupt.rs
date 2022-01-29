@@ -116,16 +116,16 @@ where
         self.interface.write(Registers::CTRL_REG3.addr(), config.int_ctrl_reg3())?;                
         
         // get the contents of INTERRUPT_CFG and combine it with the bits to be set
-        let mut buffer = [0u8;1];
+        let mut reg_data = [0u8;1];
         self.read_register(Registers::INTERRUPT_CFG)?;        
                 
         let mut interrupt_cfg = config.int_interrupt_cfg();
                
-        buffer = buffer & !0b00001111;
+        let mut data: u8 = reg_data[0] & !0b00001111;
 
-        buffer = buffer | interrupt_cfg;
+        data = data | interrupt_cfg;
 
-        self.interface.write(Registers::INTERRUPT_CFG.addr(), buffer)?;        
+        self.interface.write(Registers::INTERRUPT_CFG.addr(), data)?;        
         
         Ok(())
     }

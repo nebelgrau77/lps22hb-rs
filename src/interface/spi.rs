@@ -1,4 +1,7 @@
 //! SPI Interface
+
+// DOESN'T WORK RIGHT, PROBLEMS WITH MULTIBYTE READING
+
 use super::Interface;
 use embedded_hal::{blocking::spi::Transfer, blocking::spi::Write, digital::v2::OutputPin};
 
