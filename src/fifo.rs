@@ -10,9 +10,9 @@ use super::*;
 #[derive(Debug)]
 pub struct FIFOConfig {
     /// Stop on FIFO watermark (enable FIFO watermark use)
-    pub enable_watermark: FLAG, // default disabled
+    pub enable_watermark: Flag, // default disabled
     /// Select FIFO operation mode (see Table 22 for details)        
-    pub fifo_mode: FIFO_MODE, // default Bypass
+    pub fifo_mode: FIFOMode, // default Bypass
     /// Set the watermark level
     pub watermark_level: u8, // default 0
 }
@@ -20,23 +20,15 @@ pub struct FIFOConfig {
 impl Default for FIFOConfig {
     fn default() -> Self {
         FIFOConfig {
-            enable_watermark: FLAG::Disabled,       // disabled
-            fifo_mode: FIFO_MODE::Bypass,           // Bypass mode
+            enable_watermark: Flag::Disabled,       // disabled
+            fifo_mode: FIFOMode::Bypass,           // Bypass mode
             watermark_level: 32u8,                  // 0 does not make sense as a default value
         }
     }
 }
 
 impl FIFOConfig {
-    /// Returns values to be written to CTRL_REG2 and FIFO_CTRL:
-    fn f_ctrl_reg2(&self) -> u8 {
-        let mut data = 0u8;
-        // THIS RESULT MUST THEN BE COMBINED WITH THE OTHER BIT SETTINGS
-        if self.enable_watermark.status() {
-            data |= 1 << 5;
-        }
-        data
-    }
+    /// Returns a value to be written to FIFO_CTRL:
     fn f_fifo_ctrl(&self) -> u8 {
         let mut data = 0u8;
         data |= self.fifo_mode.value();
@@ -47,7 +39,7 @@ impl FIFOConfig {
 
 #[derive(Debug)]
 /// Contents of the FIFO_STATUS register (threshold reached, overrun, empty, stored data level)
-pub struct FifoStatus {
+pub struct FIFOStatus {
     pub fifo_thresh_reached: bool,
     pub fifo_overrun: bool,
     pub fifo_empty: bool,
@@ -62,15 +54,15 @@ where
     // and each mode is selected by the FIFO_MODE[2:0] bits in FIFO_CTRL (14h).
     
     /// Enable and configure FIFO
-    pub fn configure_fifo(&mut self, flag: FIFO_ON, config: FIFOConfig) -> Result<(), T::Error> {
+    pub fn configure_fifo(&mut self, flag: FIFOOn, config: FIFOConfig) -> Result<(), T::Error> {
         match flag {
-            FIFO_ON::Enabled => self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::FIFO_EN),
-            FIFO_ON::Disabled => self.clear_register_bit_flag(Registers::CTRL_REG2, Bitmasks::FIFO_EN),
+            FIFOOn::Enabled => self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::FIFO_EN),
+            FIFOOn::Disabled => self.clear_register_bit_flag(Registers::CTRL_REG2, Bitmasks::FIFO_EN),
         }?;
 
         match config.enable_watermark {
-            FLAG::Enabled => self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::STOP_ON_FTH),
-            FLAG::Disabled => self.clear_register_bit_flag(Registers::CTRL_REG2, Bitmasks::STOP_ON_FTH),
+            Flag::Enabled => self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::STOP_ON_FTH),
+            Flag::Disabled => self.clear_register_bit_flag(Registers::CTRL_REG2, Bitmasks::STOP_ON_FTH),
         }?;
 
         self.interface
@@ -80,13 +72,13 @@ where
     }
     
     /// Get flags and FIFO level from the FIFO_STATUS register
-    pub fn get_fifo_status(&mut self) -> Result<FifoStatus, T::Error> {
+    pub fn get_fifo_status(&mut self) -> Result<FIFOStatus, T::Error> {
         
         let reg_value = self.read_register(Registers::FIFO_STATUS)?;        
 
         let fifo_level_value = self.read_fifo_level()?;
 
-        let status = FifoStatus {
+        let status = FIFOStatus {
             /// Is FIFO filling equal or higher than the threshold?
             fifo_thresh_reached: match reg_value & Bitmasks::FTH_FIFO {
                 0 => false,

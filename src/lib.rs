@@ -228,8 +228,8 @@ pub enum IntActive {
 impl IntActive {
     pub fn value(self) -> u8 {
         match self {
-            INT_ACTIVE::High => 0,
-            INT_ACTIVE::Low => 1,
+            IntActive::High => 0,
+            IntActive::Low => 1,
         }
     }
 }
@@ -264,7 +264,7 @@ pub enum Flag {
 }
 
 impl Flag {
-    pub fn status(self) -> u8 {
+    pub fn value(self) -> u8 {
         match self {
             Flag::Disabled => 0,
             Flag::Enabled => 1,
@@ -287,7 +287,6 @@ impl FIFOOn {
         match self {
             FIFOOn::Disabled => 0,
             FIFOOn::Enabled => 1,
-        };
-        status
+        }
     }
 }

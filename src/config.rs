@@ -9,7 +9,7 @@ where
     T: Interface<Error = E>,
 {
     /// Set output data rate        
-    pub fn set_datarate(&mut self, odr: ODR) -> Result<(), T::Error> {
+    pub fn set_datarate(&mut self, odr: Odr) -> Result<(), T::Error> {
         let mut reg_data = [0u8];
         self.interface
             .read(Registers::CTRL_REG1.addr(), &mut reg_data)?;
@@ -57,10 +57,10 @@ where
     }
 
     /// Sets SPI Mode (default 4-wire)
-    pub fn spi_config(&mut self, mode: SPI_Mode) -> Result<(), T::Error> {
+    pub fn spi_config(&mut self, mode: SPIMode) -> Result<(), T::Error> {
         match mode {
-            SPI_Mode::_3wire => self.set_register_bit_flag(Registers::CTRL_REG1, Bitmasks::SIM),
-            SPI_Mode::_4wire => self.clear_register_bit_flag(Registers::CTRL_REG1, Bitmasks::SIM),
+            SPIMode::_3wire => self.set_register_bit_flag(Registers::CTRL_REG1, Bitmasks::SIM),
+            SPIMode::_4wire => self.clear_register_bit_flag(Registers::CTRL_REG1, Bitmasks::SIM),
         }
     }
 
@@ -114,7 +114,7 @@ where
         }?;
         Ok(())
     }
-   
+
     /// Reset low-pass filter.  If the LPFP is active, in order to avoid the transitory phase,
     /// the filter can be reset by reading this register before generating pressure measurements.
     pub fn lowpass_filter_reset(&mut self) -> Result<(), T::Error> {

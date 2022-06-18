@@ -25,13 +25,11 @@ where
         Ok(whoami)
     }
 
-     /// Calculated pressure reading in hPa
-     pub fn read_pressure(&mut self) -> Result<f32, T::Error> {
+    /// Calculated pressure reading in hPa
+    pub fn read_pressure(&mut self) -> Result<f32, T::Error> {
         let mut data = [0u8; 3];
-        self.interface.read(
-            Registers::PRESS_OUT_XL.addr(),
-            &mut data,
-        )?;
+        self.interface
+            .read(Registers::PRESS_OUT_XL.addr(), &mut data)?;
         let p: i32 = (data[2] as i32) << 16 | (data[1] as i32) << 8 | (data[0] as i32);
         let pressure = (p as f32) / PRESS_SCALE; // no need to take care of negative values
         Ok(pressure)
@@ -40,15 +38,13 @@ where
     /// Calculated temperaure reading in degrees Celsius
     pub fn read_temperature(&mut self) -> Result<f32, T::Error> {
         let mut data = [0u8; 2];
-        self.interface.read(
-            Registers::TEMP_OUT_L.addr(),
-            &mut data,
-        )?;
+        self.interface
+            .read(Registers::TEMP_OUT_L.addr(), &mut data)?;
         let t: i16 = (data[1] as i16) << 8 | (data[0] as i16);
         let temperature = (t as f32) / TEMP_SCALE;
         Ok(temperature)
     }
-  
+
     /// Calculated reference pressure reading in hPa
     pub fn read_reference_pressure(&mut self) -> Result<f32, T::Error> {
         let mut data = [0u8; 3];
@@ -73,7 +69,7 @@ where
         let o: i16 = (data[1] as i16) << 8 | (data[0] as i16);
         Ok(o)
     }
- 
+
     /// Set the pressure offset value (VALUE IN hPA!)
     pub fn set_threshold(&mut self, threshold: u16) -> Result<(), T::Error> {
         let mut payload = [0u8; 2];
@@ -82,8 +78,10 @@ where
         payload[0] = (threshold & 0xff) as u8; // lower byte
         payload[1] = (threshold >> 8) as u8; // upper byte
 
-        self.interface.write(Registers::THS_P_L.addr(), payload[0])?;
-        self.interface.write(Registers::THS_P_H.addr(), payload[1])?;
+        self.interface
+            .write(Registers::THS_P_L.addr(), payload[0])?;
+        self.interface
+            .write(Registers::THS_P_H.addr(), payload[1])?;
 
         Ok(())
     }
@@ -104,25 +102,23 @@ where
 
     /// Set the reference pressure (value in hPA)
     pub fn set_reference_pressure(&mut self, pressure: u16) -> Result<(), T::Error> {
-        
         /*
         self.interface.read(Registers::REF_P_XL.addr(), &mut data)?;
         let p: i32 = (data[2] as i32) << 16 | (data[1] as i32) << 8 | (data[0] as i32);
         let pressure: f32 = (p as f32) / PRESS_SCALE;
-        
-        
+
+
         let pressure = pressure * PRESS_SCALE;
 
         let mut payload = [0u8; 3];
-        
+
         // value must be split into three bytes
 
         payload[0] = (pressure & 0xff) as u8; // XL byte
         payload[1] = (pressure >> 8) as u8; // L byte
         payload[2] = (pressure >> 16) as u8; // H byte
-                
+
         */
-        
 
         /*
 
@@ -175,10 +171,6 @@ where
 
         */
 
-
-
-
-        
         Ok(())
     }
 
@@ -219,10 +211,8 @@ where
     /// Once the acquisition is completed and the output registers updated,
     /// the device automatically enters in power-down mode. ONE_SHOT bit self-clears itself.
     pub fn one_shot(&mut self) -> Result<(), T::Error> {
-        self.set_datarate(ODR::PowerDown)?; // make sure that Power down/one shot mode is enabled
+        self.set_datarate(Odr::PowerDown)?; // make sure that Power down/one shot mode is enabled
         self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::ONE_SHOT)?;
         Ok(())
     }
-
-
 }
