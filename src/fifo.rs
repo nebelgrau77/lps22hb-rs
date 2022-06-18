@@ -46,6 +46,24 @@ pub struct FIFOStatus {
     pub fifo_level: u8,
 }
 
+impl From<u8> for FIFOStatus {
+    fn from(value: u8) -> Self {
+        FIFOStatus { fifo_thresh_reached: match (value & Bitmasks::FTH_FIFO) >> 7 {
+            0 => false,
+            _ => true,
+        },
+        fifo_overrun: match (value & Bitmasks::OVR) >> 6 {
+            0 => false,
+            _ => true,
+        },
+        fifo_empty: match value & Bitmasks::FSS_MASK {
+            0 => true,
+            _ => false,
+        }, 
+        fifo_level: value & Bitmasks::FSS_MASK, 
+    }
+}
+
 impl<T, E> LPS22HB<T>
 where
     T: Interface<Error = E>,
@@ -73,36 +91,9 @@ where
     
     /// Get flags and FIFO level from the FIFO_STATUS register
     pub fn get_fifo_status(&mut self) -> Result<FIFOStatus, T::Error> {
-        
-        let reg_value = self.read_register(Registers::FIFO_STATUS)?;        
-
-        let fifo_level_value = self.read_fifo_level()?;
-
-        let status = FIFOStatus {
-            /// Is FIFO filling equal or higher than the threshold?
-            fifo_thresh_reached: match reg_value & Bitmasks::FTH_FIFO {
-                0 => false,
-                _ => true,
-            },
-            /// Is FIFO full and at least one sample has been overwritten?
-            fifo_overrun: match reg_value & Bitmasks::OVR {
-                0 => false,
-                _ => true,
-            },
-            
-            fifo_empty: match fifo_level_value {
-                0 => true,
-                _ => false,
-            },
-             
-            /// Read FIFO stored data level
-            
-            // replace with a bitmask?
-
-            fifo_level: fifo_level_value,
-        };
-        Ok(status)
+        Ok(FIFOStatus::from(self.read_register(Registers::FIFO_STATUS)?))
     }
+
     
     /// Read FIFO stored data level   
     fn read_fifo_level(&mut self) -> Result<u8, T::Error> {

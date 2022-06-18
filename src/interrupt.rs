@@ -81,6 +81,25 @@ pub struct IntStatus {
     pub diff_press_high: bool,
 }
 
+impl From<u8> for IntStatus {
+    fn from(value: u8) -> Self {
+        IntStatus {
+            interrupt_active: match (value & Bitmasks::IA) >> 2 {
+                0 => false,
+                _ => true,
+            },
+            diff_press_low: match (value & Bitmasks::PL) >> 1 {
+                0 => false,
+                _ => true,
+            },
+            diff_press_high: match value & Bitmasks::PH {
+                0 => false,
+                _ => true,
+            },
+        }
+    }
+}
+
 impl<T, E> LPS22HB<T>
 where
     T: Interface<Error = E>,
@@ -113,25 +132,6 @@ where
 
     /// Get all the flags from the INT_SOURCE register (NOTE: INT_SOURCE register is cleared by reading it)
     pub fn get_int_status(&mut self) -> Result<IntStatus, T::Error> {
-        let reg_value = self.read_register(Registers::INT_SOURCE)?;
-
-        let status = IntStatus {
-            /// Has any interrupt event been generated?
-            interrupt_active: match reg_value & Bitmasks::IA {
-                0 => false,
-                _ => true,
-            },
-            /// Has low differential pressure event been generated?
-            diff_press_low: match reg_value & Bitmasks::PL {
-                0 => false,
-                _ => true,
-            },
-            /// Has high differential pressure event been generated?
-            diff_press_high: match reg_value & Bitmasks::PH {
-                0 => false,
-                _ => true,
-            },
-        };
-        Ok(status)
+        Ok(IntStatus::from(self.read_register(Registers::INT_SOURCE)?))
     }
 }
