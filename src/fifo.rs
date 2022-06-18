@@ -1,6 +1,6 @@
 //! Various functions related to FIFO
-//! 
-//! TO DO: 
+//!
+//! TO DO:
 //! - improve watermark level reading (fifo_level)
 //! - check if all FIFO-related functions are implemented
 
@@ -20,9 +20,9 @@ pub struct FIFOConfig {
 impl Default for FIFOConfig {
     fn default() -> Self {
         FIFOConfig {
-            enable_watermark: Flag::Disabled,       // disabled
-            fifo_mode: FIFOMode::Bypass,           // Bypass mode
-            watermark_level: 32u8,                  // 0 does not make sense as a default value
+            enable_watermark: Flag::Disabled, // disabled
+            fifo_mode: FIFOMode::Bypass,      // Bypass mode
+            watermark_level: 32u8,            // 0 does not make sense as a default value
         }
     }
 }
@@ -48,19 +48,21 @@ pub struct FIFOStatus {
 
 impl From<u8> for FIFOStatus {
     fn from(value: u8) -> Self {
-        FIFOStatus { fifo_thresh_reached: match (value & Bitmasks::FTH_FIFO) >> 7 {
-            0 => false,
-            _ => true,
-        },
-        fifo_overrun: match (value & Bitmasks::OVR) >> 6 {
-            0 => false,
-            _ => true,
-        },
-        fifo_empty: match value & Bitmasks::FSS_MASK {
-            0 => true,
-            _ => false,
-        }, 
-        fifo_level: value & Bitmasks::FSS_MASK, 
+        FIFOStatus {
+            fifo_thresh_reached: match (value & Bitmasks::FTH_FIFO) >> 7 {
+                0 => false,
+                _ => true,
+            },
+            fifo_overrun: match (value & Bitmasks::OVR) >> 6 {
+                0 => false,
+                _ => true,
+            },
+            fifo_empty: match value & Bitmasks::FSS_MASK {
+                0 => true,
+                _ => false,
+            },
+            fifo_level: value & Bitmasks::FSS_MASK,
+        }
     }
 }
 
@@ -70,38 +72,48 @@ where
 {
     // The FIFO buffer is enabled when the FIFO_EN bit in CTRL_REG2 (11h) is set to '1'
     // and each mode is selected by the FIFO_MODE[2:0] bits in FIFO_CTRL (14h).
-    
+
+    // CHECK MATCH ARMS AND UNWRAPPING
+
     /// Enable and configure FIFO
     pub fn configure_fifo(&mut self, flag: FIFOOn, config: FIFOConfig) -> Result<(), T::Error> {
         match flag {
-            FIFOOn::Enabled => self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::FIFO_EN),
-            FIFOOn::Disabled => self.clear_register_bit_flag(Registers::CTRL_REG2, Bitmasks::FIFO_EN),
-        }?;
+            FIFOOn::Enabled => {
+                self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::FIFO_EN)?
+            }
+            FIFOOn::Disabled => {
+                self.clear_register_bit_flag(Registers::CTRL_REG2, Bitmasks::FIFO_EN)?
+            }
+        };
 
         match config.enable_watermark {
-            Flag::Enabled => self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::STOP_ON_FTH),
-            Flag::Disabled => self.clear_register_bit_flag(Registers::CTRL_REG2, Bitmasks::STOP_ON_FTH),
-        }?;
+            Flag::Enabled => {
+                self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::STOP_ON_FTH)?
+            }
+            Flag::Disabled => {
+                self.clear_register_bit_flag(Registers::CTRL_REG2, Bitmasks::STOP_ON_FTH)?
+            }
+        };
 
         self.interface
             .write(Registers::FIFO_CTRL.addr(), config.f_fifo_ctrl())?;
 
         Ok(())
     }
-    
+
     /// Get flags and FIFO level from the FIFO_STATUS register
     pub fn get_fifo_status(&mut self) -> Result<FIFOStatus, T::Error> {
-        Ok(FIFOStatus::from(self.read_register(Registers::FIFO_STATUS)?))
+        Ok(FIFOStatus::from(
+            self.read_register(Registers::FIFO_STATUS)?,
+        ))
     }
 
-    
     /// Read FIFO stored data level   
-    fn read_fifo_level(&mut self) -> Result<u8, T::Error> {
+    pub fn read_fifo_level(&mut self) -> Result<u8, T::Error> {
         let mut data = [0u8; 1];
         self.interface
             .read(Registers::FIFO_STATUS.addr(), &mut data)?;
         let level = data[0] & Bitmasks::FSS_MASK;
         Ok(level)
     }
-   
 }

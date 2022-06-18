@@ -20,6 +20,8 @@ where
         Ok(())
     }
 
+    // === TO BE REFACTORED - use Flag ===
+
     /// Enable or disable block data update
     pub fn bdu_enable(&mut self, flag: bool) -> Result<(), T::Error> {
         match flag {
@@ -28,14 +30,15 @@ where
         }
     }
 
+    // === TO BE REFACTORED - use Flag ===
+
     /// AUTOZERO: when set to ‘1’, the measured pressure is used
     /// as the reference in REF_P (0x15, 0x16, 0x17).
     /// From that point on the output pressure registers are updated and the same value
     /// is also used for interrupt generation.
     /// The register content of REF_P is subtracted from the measured pressure.
     /// PRESS_OUT = measured pressure - REF_P
-    /// P_DIFF_IN = measured pressure - REF_P
-    ///     
+    /// P_DIFF_IN = measured pressure - REF_P    ///     
     pub fn autozero_config(&mut self, flag: bool) -> Result<(), T::Error> {
         match flag {
             true => self.set_register_bit_flag(Registers::INTERRUPT_CFG, Bitmasks::AUTOZERO),
@@ -48,6 +51,8 @@ where
         self.set_register_bit_flag(Registers::INTERRUPT_CFG, Bitmasks::RESET_AZ)
     }
 
+    // === TO BE REFACTORED - use Flag ===
+
     /// Disables I2C interface (default 0, I2C enabled)
     pub fn i2c_disable(&mut self, flag: bool) -> Result<(), T::Error> {
         match flag {
@@ -56,6 +61,8 @@ where
         }
     }
 
+    // === TO BE REFACTORED - use .value() ===
+
     /// Sets SPI Mode (default 4-wire)
     pub fn spi_config(&mut self, mode: SPIMode) -> Result<(), T::Error> {
         match mode {
@@ -63,6 +70,8 @@ where
             SPIMode::_4wire => self.clear_register_bit_flag(Registers::CTRL_REG1, Bitmasks::SIM),
         }
     }
+
+    // === TO BE REFACTORED - use Flag ===
 
     /// Register address automatically incremented during a multiple byte access with a serial interface (I2C or SPI).
     /// Default value: enabled
@@ -102,6 +111,8 @@ where
 
     // LOWPASS FILTER ENABLING AND CONFIGURING COULD BE MOVED TOGETHER
 
+    // === TO BE REFACTORED - use Flag for enable, maybe some enum for filter configure? ===
+
     /// Enable and configure low-pass filter on pressure data in Continuous mode
     pub fn lowpass_filter(&mut self, enable: bool, configure: bool) -> Result<(), T::Error> {
         match enable {
@@ -114,6 +125,8 @@ where
         }?;
         Ok(())
     }
+
+    // === TO BE REFACTORED - Ok(self.read_register) ===
 
     /// Reset low-pass filter.  If the LPFP is active, in order to avoid the transitory phase,
     /// the filter can be reset by reading this register before generating pressure measurements.

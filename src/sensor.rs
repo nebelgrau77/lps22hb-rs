@@ -13,6 +13,29 @@ pub struct DataStatus {
     pub press_available: bool,
 }
 
+impl From<u8> for DataStatus {
+    fn from(value: u8) -> Self {
+        DataStatus {
+            temp_overrun: match (value & Bitmasks::T_OR) >> 5 {
+                0 => false,
+                _ => true,
+            },
+            press_overrun: match (value & Bitmasks::P_OR) >> 4 {
+                0 => false,
+                _ => true,
+            },
+            temp_available: match (value & Bitmasks::T_DA) >> 1 {
+                0 => false,
+                _ => true,
+            },
+            press_available: match value & Bitmasks::P_DA {
+                0 => false,
+                _ => true,
+            },
+        }
+    }
+}
+
 impl<T, E> LPS22HB<T>
 where
     T: Interface<Error = E>,
@@ -176,34 +199,7 @@ where
 
     /// Get all the flags from the STATUS_REG register
     pub fn get_data_status(&mut self) -> Result<DataStatus, T::Error> {
-        // TO DO: use this value for reading all the bitflags in one go
-        // use bitmasks
-        let reg_value = self.read_register(Registers::STATUS)?;
-
-        let status = DataStatus {
-            /// Has new pressure data overwritten the previous one?
-            press_overrun: match reg_value & Bitmasks::P_OR {
-                0 => false,
-                _ => true,
-            },
-            /// Has new temperature data overwritten the previous one?
-            temp_overrun: match reg_value & Bitmasks::T_OR {
-                0 => false,
-                _ => true,
-            },
-            /// Is new pressure data available?
-            press_available: match reg_value & Bitmasks::P_DA {
-                0 => false,
-                _ => true,
-            },
-            /// Is new temperature data available?
-            temp_available: match reg_value & Bitmasks::T_DA {
-                0 => false,
-                _ => true,
-            },
-        };
-
-        Ok(status)
+        Ok(DataStatus::from(self.read_register(Registers::STATUS)?))
     }
 
     /// Triggers the one-shot mode, and a new acquisition starts when it is required.
