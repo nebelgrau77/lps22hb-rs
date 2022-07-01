@@ -40,24 +40,14 @@
 #![no_std]
 //#![deny(warnings, missing_docs)]
 
-pub mod sensor;
-//use sensor::*;
-
 pub mod config;
-//use config::*;
-
 pub mod fifo;
-//use fifo::*;
-
-pub mod interrupt;
-//use interrupt::*;
-
-pub mod register;
-use register::{Bitmasks, Registers};
-//use register::*;
-
 pub mod interface;
+pub mod interrupt;
+pub mod register;
+pub mod sensor;
 use interface::Interface;
+use register::{Bitmasks, Registers};
 
 /// Sensor's ID
 //const WHOAMI: u8 = 0b10110001; // decimal value 177
@@ -119,7 +109,7 @@ where
     /// Clear selected bits using a bitmask
     fn clear_register_bit_flag(&mut self, address: Registers, bitmask: u8) -> Result<(), T::Error> {
         let mut reg_data = [0u8; 1];
-        self.interface.read(address.addr(), &mut reg_data)?;        
+        self.interface.read(address.addr(), &mut reg_data)?;
         let payload: u8 = reg_data[0] & !bitmask;
         self.interface.write(address.addr(), payload)?;
         Ok(())
@@ -148,7 +138,7 @@ where
 /// Output data rate and power mode selection (ODR). (Refer to Table 17)
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy)]
-pub enum ODR {
+pub enum Odr {
     /// Power-down / One-shot mode enabled
     PowerDown = 0b000,
     /// 1 Hz
@@ -163,7 +153,7 @@ pub enum ODR {
     _75Hz = 0b101,
 }
 
-impl ODR {
+impl Odr {
     pub fn value(self) -> u8 {
         (self as u8) << 4
     }
@@ -172,7 +162,7 @@ impl ODR {
 /// SPI interface mode
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy)]
-pub enum SPI_Mode {
+pub enum SPIMode {
     /// 4-wire mode (default)
     _4wire,
     /// 3-wire mode
@@ -182,7 +172,7 @@ pub enum SPI_Mode {
 /// FIFO mode selection. (Refer to Table 20)
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy)]
-pub enum FIFO_MODE {
+pub enum FIFOMode {
     /// Bypass mode
     Bypass = 0b000,
     /// FIFO mode
@@ -190,16 +180,16 @@ pub enum FIFO_MODE {
     /// Stream mode
     Stream = 0b010,
     /// Stream-to-FIFO mode
-    Stream_to_FIFO = 0b011,
+    StreamToFIFO = 0b011,
     /// Bypass-to-stream mode
-    Bypass_to_stream = 0b100,
+    BypassToStream = 0b100,
     /// Dynamic-stream mode
-    Dynamic_Stream = 0b110,
+    DynamicStream = 0b110,
     /// Bypass-to-FIFO mode
-    Bypass_to_FIFO = 0b111,
+    BypassToFIFO = 0b111,
 }
 
-impl FIFO_MODE {
+impl FIFOMode {
     pub fn value(self) -> u8 {
         (self as u8) << 5 // shifted into the correct position, can be used directly
     }
@@ -208,18 +198,18 @@ impl FIFO_MODE {
 /// INT_DRDY pin configuration. (Refer to Table 19)
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy)]
-pub enum INT_DRDY {
+pub enum IntDrdy {
     /// Data signal (see CTRL_REG4)
     DataSignal = 0b00,
     /// Pressure high
-    P_high = 0b01,
+    PHigh = 0b01,
     /// Pressure low
-    P_low = 0b10,
+    PLow = 0b10,
     /// Pressure low or high
-    P_low_or_high = 0b011,
+    PLowOrHigh = 0b011,
 }
 
-impl INT_DRDY {
+impl IntDrdy {
     pub fn value(self) -> u8 {
         self as u8 // no need to shift, bits 0:1 (INT_S)
     }
@@ -228,79 +218,75 @@ impl INT_DRDY {
 /// Interrupt active setting for the INT_DRDY pin: active high (default) or active low
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy)]
-pub enum INT_ACTIVE {
+pub enum IntActive {
     /// Active high
     High,
     /// Active low
     Low,
 }
 
-impl INT_ACTIVE {
-    pub fn status(self) -> bool {
-        let status = match self {
-            INT_ACTIVE::High => false,
-            INT_ACTIVE::Low => true,
-        };
-        status
+impl IntActive {
+    pub fn value(self) -> u8 {
+        match self {
+            IntActive::High => 0,
+            IntActive::Low => 1,
+        }
     }
 }
 
 /// Interrupt pad setting for INT_DRDY pin: push-pull (default) or open-drain.
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy)]
-pub enum INT_PIN {
+pub enum IntPin {
     /// Push-pull
     PushPull,
     /// Open drain
     OpenDrain,
 }
 
-impl INT_PIN {
-    pub fn status(self) -> bool {
-        let status = match self {
-            INT_PIN::PushPull => false,
-            INT_PIN::OpenDrain => true,
-        };
-        status
+impl IntPin {
+    pub fn value(self) -> u8 {
+        match self {
+            IntPin::PushPull => 0,
+            IntPin::OpenDrain => 1,
+        }
     }
 }
 
 /// Settings for various FIFO- and interrupt-related flags, Enabled or Disabled
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy)]
-pub enum FLAG {
+pub enum Flag {
     /// Enabled (bit set)
     Enabled,
     /// Disabled (bit cleared)
     Disabled,
 }
 
-impl FLAG {
-    pub fn status(self) -> bool {
-        let status = match self {
-            FLAG::Disabled => false,
-            FLAG::Enabled => true,
-        };
-        status
+impl Flag {
+    pub fn value(self) -> u8 {
+        match self {
+            Flag::Disabled => 0,
+            Flag::Enabled => 1,
+        }
     }
 }
 
 /// FIFO on/off
 #[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy)]
-pub enum FIFO_ON {
+pub enum FIFOOn {
     /// Enabled (bit set)
     Enabled,
     /// Disabled (bit cleared)
     Disabled,
 }
 
-impl FIFO_ON {
-    pub fn status(self) -> bool {
-        let status = match self {
-            FIFO_ON::Disabled => false,
-            FIFO_ON::Enabled => true,
-        };
-        status
+impl FIFOOn {
+    pub fn value(self) -> u8 {
+        match self {
+            FIFOOn::Disabled => 0,
+            FIFOOn::Enabled => 1,
+        }
     }
 }
