@@ -119,7 +119,7 @@ where
     /// Clear selected bits using a bitmask
     fn clear_register_bit_flag(&mut self, address: Registers, bitmask: u8) -> Result<(), T::Error> {
         let mut reg_data = [0u8; 1];
-        self.interface.read(address.addr(), &mut reg_data)?;        
+        self.interface.read(address.addr(), &mut reg_data)?;
         let payload: u8 = reg_data[0] & !bitmask;
         self.interface.write(address.addr(), payload)?;
         Ok(())
