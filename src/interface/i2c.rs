@@ -1,14 +1,6 @@
 //! I2C Interface
 use super::Interface;
-//use embedded_hal::blocking::i2c::{Write, WriteRead};
 use embedded_hal::i2c::I2c;
-
-/// Errors in this crate
-#[derive(Debug)]
-pub enum Error<CommE> {
-    /// Communication error
-    Comm(CommE),
-}
 
 /// Pressure sensor address for I2C communication
 #[allow(non_camel_case_types)]
@@ -48,10 +40,8 @@ impl<I2C> I2cInterface<I2C> {
 //impl<I2C, CommE> Interface for I2cInterface<I2C>
 impl<I2C, E> Interface for I2cInterface<I2C>
 where
-    //I2C: WriteRead<Error = CommE> + Write<Error = CommE>,
     I2C: I2c<Error = E>
 {
-    //type Error = Error<CommE>;
     type Error = E;
 
     fn write(&mut self, addr: u8, value: u8) -> Result<(), Self::Error> {
