@@ -73,8 +73,6 @@ where
     // The FIFO buffer is enabled when the FIFO_EN bit in CTRL_REG2 (11h) is set to '1'
     // and each mode is selected by the FIFO_MODE[2:0] bits in FIFO_CTRL (14h).
 
-    // CHECK MATCH ARMS AND UNWRAPPING
-
     /// Enable and configure FIFO
     pub fn configure_fifo(&mut self, flag: FIFOOn, config: FIFOConfig) -> Result<(), T::Error> {
         match flag {
@@ -110,10 +108,8 @@ where
 
     /// Read FIFO stored data level   
     pub fn read_fifo_level(&mut self) -> Result<u8, T::Error> {
-        let mut data = [0u8; 1];
-        self.interface
-            .read(Registers::FIFO_STATUS.addr(), &mut data)?;
-        let level = data[0] & Bitmasks::FSS_MASK;
+        let data = self.read_register(Registers::FIFO_STATUS)?;
+        let level = data & Bitmasks::FSS_MASK;
         Ok(level)
     }
 }

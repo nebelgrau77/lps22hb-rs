@@ -50,7 +50,7 @@ impl Default for InterruptConfig {
 }
 
 impl InterruptConfig {
-    /// Returns values to be written to CTRL_REG3, CTRL_REG4 and INTERRUPT_CFG:
+    /// Returns values to be written to CTRL_REG3 and INTERRUPT_CFG:
     fn int_ctrl_reg3(&self) -> u8 {
         let mut data = 0u8;
         data |= self.active_high_or_low.value() << 7;

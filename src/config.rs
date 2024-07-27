@@ -20,17 +20,17 @@ where
         Ok(())
     }
 
-    // === TO BE REFACTORED - use Flag ===
+    // === TO BE REFACTORED - use Flag.value ===
 
     /// Enable or disable block data update
-    pub fn bdu_enable(&mut self, flag: bool) -> Result<(), T::Error> {
+    pub fn bdu_enable(&mut self, flag: Flag) -> Result<(), T::Error> {
         match flag {
-            true => self.set_register_bit_flag(Registers::CTRL_REG1, Bitmasks::BDU),
-            false => self.clear_register_bit_flag(Registers::CTRL_REG1, Bitmasks::BDU),
+            Flag::Enabled => self.set_register_bit_flag(Registers::CTRL_REG1, Bitmasks::BDU),
+            Flag::Disabled => self.clear_register_bit_flag(Registers::CTRL_REG1, Bitmasks::BDU),
         }
     }
 
-    // === TO BE REFACTORED - use Flag ===
+    // === TO BE REFACTORED - use Flag.value ===
 
     /// AUTOZERO: when set to ‘1’, the measured pressure is used
     /// as the reference in REF_P (0x15, 0x16, 0x17).
@@ -39,10 +39,14 @@ where
     /// The register content of REF_P is subtracted from the measured pressure.
     /// PRESS_OUT = measured pressure - REF_P
     /// P_DIFF_IN = measured pressure - REF_P    ///     
-    pub fn autozero_config(&mut self, flag: bool) -> Result<(), T::Error> {
+    pub fn autozero_config(&mut self, flag: Flag) -> Result<(), T::Error> {
         match flag {
-            true => self.set_register_bit_flag(Registers::INTERRUPT_CFG, Bitmasks::AUTOZERO),
-            false => self.clear_register_bit_flag(Registers::INTERRUPT_CFG, Bitmasks::AUTOZERO),
+            Flag::Enabled => {
+                self.set_register_bit_flag(Registers::INTERRUPT_CFG, Bitmasks::AUTOZERO)
+            }
+            Flag::Disabled => {
+                self.clear_register_bit_flag(Registers::INTERRUPT_CFG, Bitmasks::AUTOZERO)
+            }
         }
     }
 
@@ -51,13 +55,13 @@ where
         self.set_register_bit_flag(Registers::INTERRUPT_CFG, Bitmasks::RESET_AZ)
     }
 
-    // === TO BE REFACTORED - use Flag ===
+    // === TO BE REFACTORED - use Flag.value ===
 
     /// Disables I2C interface (default 0, I2C enabled)
-    pub fn i2c_disable(&mut self, flag: bool) -> Result<(), T::Error> {
+    pub fn i2c_disable(&mut self, flag: Flag) -> Result<(), T::Error> {
         match flag {
-            true => self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::I2C_DIS),
-            false => self.clear_register_bit_flag(Registers::CTRL_REG2, Bitmasks::I2C_DIS),
+            Flag::Enabled => self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::I2C_DIS),
+            Flag::Disabled => self.clear_register_bit_flag(Registers::CTRL_REG2, Bitmasks::I2C_DIS),
         }
     }
 
@@ -71,14 +75,16 @@ where
         }
     }
 
-    // === TO BE REFACTORED - use Flag ===
+    // === TO BE REFACTORED - use Flag.value ===
 
     /// Register address automatically incremented during a multiple byte access with a serial interface (I2C or SPI).
     /// Default value: enabled
-    pub fn address_incrementing(&mut self, flag: bool) -> Result<(), T::Error> {
+    pub fn address_incrementing(&mut self, flag: Flag) -> Result<(), T::Error> {
         match flag {
-            true => self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::IF_ADD_INC),
-            false => self.clear_register_bit_flag(Registers::CTRL_REG2, Bitmasks::IF_ADD_INC),
+            Flag::Enabled => self.set_register_bit_flag(Registers::CTRL_REG2, Bitmasks::IF_ADD_INC),
+            Flag::Disabled => {
+                self.clear_register_bit_flag(Registers::CTRL_REG2, Bitmasks::IF_ADD_INC)
+            }
         }
     }
 
@@ -111,13 +117,13 @@ where
 
     // LOWPASS FILTER ENABLING AND CONFIGURING COULD BE MOVED TOGETHER
 
-    // === TO BE REFACTORED - use Flag for enable, maybe some enum for filter configure? ===
+    // === TO BE REFACTORED - use Flag.value, use some enum for filter configure? ===
 
     /// Enable and configure low-pass filter on pressure data in Continuous mode
-    pub fn lowpass_filter(&mut self, enable: bool, configure: bool) -> Result<(), T::Error> {
+    pub fn lowpass_filter(&mut self, enable: Flag, configure: bool) -> Result<(), T::Error> {
         match enable {
-            true => self.set_register_bit_flag(Registers::CTRL_REG1, Bitmasks::EN_LPFP),
-            false => self.clear_register_bit_flag(Registers::CTRL_REG1, Bitmasks::EN_LPFP),
+            Flag::Enabled => self.set_register_bit_flag(Registers::CTRL_REG1, Bitmasks::EN_LPFP),
+            Flag::Disabled => self.clear_register_bit_flag(Registers::CTRL_REG1, Bitmasks::EN_LPFP),
         }?;
         match configure {
             true => self.set_register_bit_flag(Registers::CTRL_REG1, Bitmasks::LPFP_CFG),
@@ -126,14 +132,10 @@ where
         Ok(())
     }
 
-    // === TO BE REFACTORED - Ok(self.read_register) ===
-
     /// Reset low-pass filter.  If the LPFP is active, in order to avoid the transitory phase,
     /// the filter can be reset by reading this register before generating pressure measurements.
     pub fn lowpass_filter_reset(&mut self) -> Result<(), T::Error> {
-        let mut _data = [0u8; 1];
-        self.interface
-            .read(Registers::LPFP_RES.addr(), &mut _data)?;
+        self.read_register(Registers::LPFP_RES)?;
         Ok(())
     }
 }
