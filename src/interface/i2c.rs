@@ -1,6 +1,7 @@
 //! I2C Interface
 use super::Interface;
-use embedded_hal::blocking::i2c::{Write, WriteRead};
+//use embedded_hal::blocking::i2c::{Write, WriteRead};
+use embedded_hal::i2c::I2c;
 
 /// Errors in this crate
 #[derive(Debug)]
@@ -44,29 +45,21 @@ impl<I2C> I2cInterface<I2C> {
 }
 
 /// Implementation of `Interface`
-impl<I2C, CommE> Interface for I2cInterface<I2C>
+//impl<I2C, CommE> Interface for I2cInterface<I2C>
+impl<I2C, E> Interface for I2cInterface<I2C>
 where
-    I2C: WriteRead<Error = CommE> + Write<Error = CommE>,
+    //I2C: WriteRead<Error = CommE> + Write<Error = CommE>,
+    I2C: I2c<Error = E>
 {
-    type Error = Error<CommE>;
+    //type Error = Error<CommE>;
+    type Error = E;
 
     fn write(&mut self, addr: u8, value: u8) -> Result<(), Self::Error> {
-        //let sensor_addr = self.dev_addr;        
-        core::prelude::v1::Ok(
-            self.i2c
-                //.write(sensor_addr, &[addr, value])
-                .write(self.dev_addr, &[addr, value])
-                .map_err(Error::Comm)?,
-        )
+        self.i2c.write(self.dev_addr, &[addr, value])                
     }
 
     fn read(&mut self, addr: u8, buffer: &mut [u8]) -> Result<(), Self::Error> {
-        //let sensor_addr = self.dev_addr;        
-        core::prelude::v1::Ok(
-            self.i2c
-                //.write_read(sensor_addr, &[addr], buffer)
-                .write_read(self.dev_addr, &[addr], buffer)
-                .map_err(Error::Comm)?,
-        )
+        self.i2c.write_read(self.dev_addr, &[addr], buffer)
+                
     }
 }
