@@ -103,7 +103,7 @@ where
     }
 
     /// Set the reference pressure (value in hPA)
-    pub fn set_reference_pressure(&mut self, pressure: u16) -> Result<(), T::Error> {
+    pub fn set_reference_pressure(&mut self, _pressure: u16) -> Result<(), T::Error> {
         
         /*
         self.interface.read(Registers::REF_P_XL.addr(), &mut data)?;
@@ -189,22 +189,22 @@ where
         let reg_value = self.read_register(Registers::STATUS)?;
 
         let status = DataStatus {
-            /// Has new pressure data overwritten the previous one?
+            // Has new pressure data overwritten the previous one?
             press_overrun: match reg_value & Bitmasks::P_OR {
                 0 => false,
                 _ => true,
             },
-            /// Has new temperature data overwritten the previous one?
+            // Has new temperature data overwritten the previous one?
             temp_overrun: match reg_value & Bitmasks::T_OR {
                 0 => false,
                 _ => true,
             },
-            /// Is new pressure data available?
+            // Is new pressure data available?
             press_available: match reg_value & Bitmasks::P_DA {
                 0 => false,
                 _ => true,
             },
-            /// Is new temperature data available?
+            // Is new temperature data available?
             temp_available: match reg_value & Bitmasks::T_DA {
                 0 => false,
                 _ => true,

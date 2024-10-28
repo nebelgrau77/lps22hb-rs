@@ -87,12 +87,12 @@ where
         let fifo_level_value = self.read_fifo_level()?;
 
         let status = FifoStatus {
-            /// Is FIFO filling equal or higher than the threshold?
+            // Is FIFO filling equal or higher than the threshold?
             fifo_thresh_reached: match reg_value & Bitmasks::FTH_FIFO {
                 0 => false,
                 _ => true,
             },
-            /// Is FIFO full and at least one sample has been overwritten?
+            // Is FIFO full and at least one sample has been overwritten?
             fifo_overrun: match reg_value & Bitmasks::OVR {
                 0 => false,
                 _ => true,
@@ -103,7 +103,7 @@ where
                 _ => false,
             },
              
-            /// Read FIFO stored data level
+            // Read FIFO stored data level
             
             // replace with a bitmask?
 

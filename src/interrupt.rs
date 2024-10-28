@@ -116,10 +116,10 @@ where
         self.interface.write(Registers::CTRL_REG3.addr(), config.int_ctrl_reg3())?;                
         
         // get the contents of INTERRUPT_CFG and combine it with the bits to be set
-        let mut reg_data = [0u8;1];
+        let reg_data = [0u8;1];
         self.read_register(Registers::INTERRUPT_CFG)?;        
                 
-        let mut interrupt_cfg = config.int_interrupt_cfg();
+        let interrupt_cfg = config.int_interrupt_cfg();
                
         let mut data: u8 = reg_data[0] & !0b00001111;
 
@@ -137,17 +137,17 @@ where
     let reg_value = self.read_register(Registers::INT_SOURCE)?;
 
     let status = IntStatus {
-        /// Has any interrupt event been generated?
+        // Has any interrupt event been generated?
         interrupt_active: match reg_value & Bitmasks::IA {
             0 => false,
             _ => true,
         },
-        /// Has low differential pressure event been generated?
+        // Has low differential pressure event been generated?
         diff_press_low: match reg_value & Bitmasks::PL {
             0 => false,
             _ => true,
         },
-        /// Has high differential pressure event been generated?
+        // Has high differential pressure event been generated?
         diff_press_high: match reg_value & Bitmasks::PH {
             0 => false,
             _ => true,
